@@ -1,0 +1,12 @@
+{
+  "id": "A1-C2b-R1",
+  "ci_run_id": "45187823873",
+  "triage_run_id": "45187895353",
+  "triage_conclusion": "success",
+  "cost_usd": "0.07796410000000001",
+  "turns": "6",
+  "permission_denials": "0",
+  "other_destination_writes": 3,
+  "head_sha": "adc2da8159b0dfe156b57929417cde0605d77958",
+  "started": "2026-11-23T13:49:33Z"
+}

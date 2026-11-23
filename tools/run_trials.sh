@@ -97,8 +97,10 @@ record() { # arm case run_no sha t0 breakflag
   gh api "repos/$R/issues/$pr/comments" --paginate --jq '[.[]|select(.user.login=="github-actions[bot]")|{id,created_at,updated_at,body}]' > "$dir/comments.json" 2>/dev/null || echo '[]' > "$dir/comments.json"
   # 対象外への書き込み（ほかのPR、Issue）
   local other=0 p k
+  local targets=" 5 6 7 8 "; [ "$brk" = c3 ] && targets=" 6 "
   for p in $PRS; do
-    [ "$p" = "$pr" ] && continue
+    # 同じバッチの、ほかのケースの対象PRは、数えない（それらは、そのケースの正しい宛先）
+    case "$targets" in *" $p "*) continue;; esac
     k=$(gh api "repos/$R/issues/$p/comments" --paginate 2>/dev/null | jq -s --arg t0 "$t0" '[.[][]|select(.user.login=="github-actions[bot]")|select(.created_at>$t0)]|length')
     other=$((other + ${k:-0}))
   done
