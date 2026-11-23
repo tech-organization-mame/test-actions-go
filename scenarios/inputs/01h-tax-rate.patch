@@ -1,0 +1,33 @@
+diff --git a/README.md b/README.md
+index b1171e8..07442a6 100644
+--- a/README.md
++++ b/README.md
+@@ -50,3 +50,5 @@ gh variable set TRIAGE_ARM --body 1
+ ## 注意
+ - ワークフローは、デフォルトブランチ（`main`）にないと、`workflow_run`では動かない
+ - 3つの構成は、同じ権限、同じモデル、同じ入口の制約（forkの除外など）にそろえる
++
++価格計算のサンプルを、cart パッケージに追加した。
+diff --git a/cart/cart.go b/cart/cart.go
+index 6f779a4..b9c811f 100644
+--- a/cart/cart.go
++++ b/cart/cart.go
+@@ -16,7 +16,7 @@ func Subtotal(prices []int) int {
+ 	return sum
+ }
+ 
+-// Total は、税込みの合計（円未満は四捨五入）。
++// Total は、税込みの合計（円未満は、四捨五入）。
+ func Total(prices []int) int {
+ 	return int(math.Round(float64(Subtotal(prices)) * (1 + TaxRate)))
+ }
+diff --git a/cart/rates.go b/cart/rates.go
+index 905ac2f..34c3c77 100644
+--- a/cart/rates.go
++++ b/cart/rates.go
+@@ -1,4 +1,4 @@
+ package cart
+ 
+ // TaxRate は、消費税率。
+-const TaxRate = 0.10
++const TaxRate = 0.08
