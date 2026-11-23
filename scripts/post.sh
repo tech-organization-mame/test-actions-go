@@ -40,6 +40,14 @@ SHA7=$(cx '.head_sha[0:7]'); PR=$(cx '.pr_number // empty'); FP=$(cx '.fingerpri
 MENTION=$(cx '.mention // empty')
 MARKER="<!-- triage:run-${RUN_ID}-attempt-${ATTEMPT} -->"
 
+# ---- ActionsのURL（実行へのリンク。ログの行へのリンクの部品）----
+RUN_URL="${GITHUB_SERVER_URL:-https://github.com}/${REPO}/actions/runs/${RUN_ID}/attempts/${ATTEMPT}"
+# 行ID → ジョブID、ステップ番号、ステップ内の行。数値でない項目は捨てる。読めなければ、リンクなし
+LINKMAP='{}'
+if [ -r "$TRIAGE_DIR/linkmap.json" ]; then
+  LINKMAP=$(command jq -c 'if type == "object" then with_entries(select((.key | test("^L[0-9]+$")) and (.value | type == "object") and ((.value.job | type) == "number") and ((.value.step | type) == "number") and ((.value.line | type) == "number"))) else {} end' "$TRIAGE_DIR/linkmap.json" 2> /dev/null) || LINKMAP='{}'
+fi
+
 # ---- 行ID付きのログ（L<n>: 原文）を、連想配列にする ----
 LOGMAP='{}'
 if [ -r "$LOG" ]; then
@@ -91,7 +99,7 @@ render() {
   [ -r "$TEMPLATE_DIR/$1" ] || die "テンプレートが読めない: $1"
   jq -Rrs --argjson v "$2" 'gsub("\\{\\{(?<k>[a-z0-9_]+)\\}\\}"; .k as $k | if ($v | has($k)) then $v[$k] else error("未知の変数: " + $k) end)' "$TEMPLATE_DIR/$1" || die "テンプレートを展開できない: $1"
 }
-BASE_VARS=$(jq -n --arg marker "$MARKER" --arg wf "$WORKFLOW_NAME" --arg run "$RUN_ID" --arg att "$ATTEMPT" --arg sha7 "$SHA7" --arg mention "$MENTION_LINE" --arg fp "$FPLINE" '{marker: $marker, workflow: $wf, run_id: $run, attempt: $att, sha7: $sha7, mention_line: $mention, fingerprint_line: $fp}')
+BASE_VARS=$(jq -n --arg marker "$MARKER" --arg wf "$WORKFLOW_NAME" --arg run "$RUN_ID" --arg run_url "$RUN_URL" --arg att "$ATTEMPT" --arg sha7 "$SHA7" --arg mention "$MENTION_LINE" --arg fp "$FPLINE" '{marker: $marker, workflow: $wf, run_id: $run, run_url: $run_url, attempt: $att, sha7: $sha7, mention_line: $mention, fingerprint_line: $fp}')
 
 if [ "$RESULT_OK" = 1 ]; then
   CAT=$(jq -r .category "$RES")
@@ -103,11 +111,13 @@ if [ "$RESULT_OK" = 1 ]; then
       NETFLAG=unverified
     fi
   fi
-  VARS=$(jq -c --argjson base "$BASE_VARS" --argjson map "$LOGMAP" --arg flag "$NETFLAG" "$SAN"'
+  VARS=$(jq -c --argjson base "$BASE_VARS" --argjson map "$LOGMAP" --argjson lm "$LINKMAP" --arg url "$RUN_URL" --arg flag "$NETFLAG" "$SAN"'
     $base + {
       summary: (.summary | san),
       cause: (if $flag == "unverified" then "不明（ネットワークエラーと断定できる根拠が、ログにない）" else (.suspected_cause | san) end),
       next_steps: ([.next_steps[] | "  - " + (. | san)] | join("\n")),
+      evidence_links: ("根拠の行：" + ([.evidence[] | . as $id | ($lm[$id] // null) as $e
+        | if $e then "[" + $id + "](" + ($url | sub("/attempts/[0-9]+$"; "")) + "/job/" + ($e.job | floor | tostring) + "#step:" + ($e.step | floor | tostring) + ":" + ($e.line | floor | tostring) + ")" else $id end] | join("、"))),
       evidence: (
         [.evidence[] | . + ": " + ($map[.] | gsub("[\\x00-\\x1f\\x7f]+"; " "))] as $ls
         | ([$ls[] | [match("`+"; "g").length] | max // 0] | max // 0) as $m

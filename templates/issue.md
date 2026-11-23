@@ -10,7 +10,8 @@
 <details>
 <summary>対象の実行と根拠</summary>
 
-- 対象：`{{workflow}}`ワークフロー（run #{{run_id}}、attempt {{attempt}}、コミット`{{sha7}}`）
+- 対象：`{{workflow}}`ワークフロー（[run #{{run_id}}]({{run_url}})、attempt {{attempt}}、コミット`{{sha7}}`）
+{{evidence_links}}
 {{evidence}}
 
 </details>

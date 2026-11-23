@@ -299,13 +299,16 @@ t_P21__destination_text_in_result_does_not_change_target() {
 
 ########## 無害化（V-01、S-04）##########
 
+# スクリプト自身が付ける、Actionsへのリンク（実行、ログの行）を、文字だけにする。AIの欄の無害化の検査で、これ以外のリンクが残らないことを見るため
+own_links_stripped() { sed -E 's#\[([^]]+)\]\(https://github\.com/[^)]*/actions/runs/[^)]*\)#\1#g'; }
+
 # spec: V-01, S-04（@、リンク、画像、HTML、偽マーカーの除去）
 t_P22__sanitize_mentions_links_images_html_in_result() {
   ctx_from post/context.pr.json
   res_from post/result.malicious.json
   run_post
   assert_pr_comment_created
-  local body; body=$(write_body 1)
+  local body; body=$(write_body 1 | own_links_stripped)
   assert_not_contains "$body" "@victim"
   assert_not_contains "$body" "@admin"
   assert_not_contains "$body" "@team"
@@ -650,7 +653,7 @@ t_P48__sanitize_reference_links_www_multiline_and_reformation() {
     | .suspected_cause = "<scr<b>ipt>alert(1)</scr<b>ipt> と [x](h<b>ttps://evil.example/q)"'
   run_post
   assert_pr_comment_created
-  local body; body=$(write_body 1)
+  local body; body=$(write_body 1 | own_links_stripped)
   assert_not_contains "$body" "evil.example"
   assert_not_contains "$body" "www."
   assert_not_contains "$body" "[ref]"
@@ -661,7 +664,7 @@ t_P48__sanitize_reference_links_www_multiline_and_reformation() {
   # 複数行は1行に畳まれる。コードブロックの記号が、行頭に来ないこと
   # AIの欄からは、フェンスが作れない（フェンスは、引用の開閉の2行だけ）
   assert_eq "$(printf '%s
-' "$body" | grep -cE '^[[:space:]]*```')" 2 "フェンスの行")
+' "$body" | grep -cE '^[[:space:]]*```')" 2 "フェンスの行"
   assert_not_contains "$body" $'\n# H1'
   assert_no_html "$body"
   assert_eq "$(count_marker_lines "$body")" 1 "マーカーは先頭の1つだけ"
@@ -715,4 +718,34 @@ t_P52__details_tags_in_ai_fields_do_not_add_extra_tags() {
   assert_eq "$(printf '%s' "$body" | grep -o '<details>' | wc -l | tr -d ' ')" 1 "<details> は1つ"
   assert_eq "$(printf '%s' "$body" | grep -o '</details>' | wc -l | tr -d ' ')" 1 "</details> は1つ"
   assert_eq "$(printf '%s' "$body" | grep -o '<summary>' | wc -l | tr -d ' ')" 1 "<summary> は1つ"
+}
+
+########## Actionsへのリンク（実行、ログの行）##########
+
+# spec: 実行のリンクと、根拠の行のリンク（ジョブID、ステップ番号、ステップ内の行）
+t_P54__run_and_evidence_lines_are_linked() {
+  ctx_from post/context.pr.json
+  res_from post/result.test_failure.json
+  echo '{"L7":{"job":555,"step":5,"line":3},"L8":{"job":555,"step":5,"line":4}}' > "$TRIAGE_DIR/linkmap.json"
+  run_post
+  assert_pr_comment_created
+  local body; body=$(write_body 1)
+  local base="https://github.com/tech-organization-mame/test-actions-go/actions/runs/$RUN_ID"
+  assert_contains "$body" "[run #$RUN_ID]($base/attempts/1)"
+  assert_contains "$body" "[L7]($base/job/555#step:5:3)"
+  assert_contains "$body" "[L8]($base/job/555#step:5:4)"
+}
+
+# spec: 表がない、壊れている、数値でない項目は、リンクにしない（投稿は止めない）。実行のリンクは残る
+t_P55__missing_or_broken_linkmap_means_plain_line_ids() {
+  ctx_from post/context.pr.json
+  res_from post/result.test_failure.json
+  echo '{"L7":{"job":"x\")[evil](http://evil.example)","step":5,"line":3}}' > "$TRIAGE_DIR/linkmap.json"
+  run_post
+  assert_pr_comment_created
+  local body; body=$(write_body 1)
+  assert_not_contains "$body" "evil"
+  assert_not_contains "$body" "[L7]("
+  assert_contains "$body" "根拠の行：L7、L8"
+  assert_contains "$body" "[run #$RUN_ID]("
 }
