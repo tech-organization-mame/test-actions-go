@@ -71,15 +71,19 @@ SAN='def san:
   | gsub("https?://[^\\s)>\\]]*"; "")
   | gsub("@"; "");'
 
-# ---- 本文を作る ----
-HEAD_LINES=$(printf '%s\n%s\n\n%s' "$MARKER" '## CI失敗の調査結果（自動）' \
-  "- 対象：\`$WORKFLOW_NAME\`ワークフロー（run #$RUN_ID、attempt $ATTEMPT、コミット\`$SHA7\`）")
-TAIL_MENTION=""
-[ -n "$MENTION" ] && TAIL_MENTION=$(printf '\n@%s' "$MENTION")
+# ---- 本文を作る（テンプレートは、templates/ のファイル。D-15）----
+TEMPLATE_DIR=${TRIAGE_TEMPLATE_DIR:-$HERE/../templates}
+MENTION_LINE=""
+[ -n "$MENTION" ] && MENTION_LINE="@$MENTION"
+FPLINE=""
+[ -n "$FP" ] && FPLINE="<!-- triage-fingerprint:${FP} -->"
 
-fallback_body() {
-  printf '%s\n- 結果：調査失敗（%s）。ログと、ジョブの記録を確認してください。\n%s\n' "$HEAD_LINES" "$1" "$TAIL_MENTION"
+# render <テンプレート名> <変数のJSON>：{{名前}}を、1回の走査で置き換える（挿入した文字列は、再度は置換しない）
+render() {
+  [ -r "$TEMPLATE_DIR/$1" ] || die "テンプレートが読めない: $1"
+  jq -Rrs --argjson v "$2" 'gsub("\\{\\{(?<k>[a-z0-9_]+)\\}\\}"; .k as $k | if ($v | has($k)) then $v[$k] else error("未知の変数: " + $k) end)' "$TEMPLATE_DIR/$1" || die "テンプレートを展開できない: $1"
 }
+BASE_VARS=$(jq -n --arg marker "$MARKER" --arg wf "$WORKFLOW_NAME" --arg run "$RUN_ID" --arg att "$ATTEMPT" --arg sha7 "$SHA7" --arg mention "$MENTION_LINE" --arg fp "$FPLINE" '{marker: $marker, workflow: $wf, run_id: $run, attempt: $att, sha7: $sha7, mention_line: $mention, fingerprint_line: $fp}')
 
 if [ "$RESULT_OK" = 1 ]; then
   CAT=$(jq -r .category "$RES")
@@ -91,19 +95,21 @@ if [ "$RESULT_OK" = 1 ]; then
       NETFLAG=unverified
     fi
   fi
-  BODY_TEXT=$(jq -r --argjson map "$LOGMAP" --arg flag "$NETFLAG" "$SAN"'
-    (.summary | san) as $s
-    | (if $flag == "unverified" then "不明（ネットワークエラーと断定できる根拠が、ログにない）" else (.suspected_cause | san) end) as $c
-    | "- 要約：" + $s,
-      "- 原因の仮説：" + $c,
-      "- 根拠：",
-      (.evidence[] | "  - " + . + "：" + ($map[.] | san)),
-      "- 次の対応：",
-      (.next_steps[] | "  - " + (. | san))' "$RES") || die "本文を作れない"
-  BODY=$(printf '%s\n\n%s\n\n%s%s\n' "$HEAD_LINES" "$BODY_TEXT" '※ AIによる推測です。原因を断定するものではありません。' "$TAIL_MENTION")
+  VARS=$(jq -c --argjson base "$BASE_VARS" --argjson map "$LOGMAP" --arg flag "$NETFLAG" "$SAN"'
+    $base + {
+      summary: (.summary | san),
+      cause: (if $flag == "unverified" then "不明（ネットワークエラーと断定できる根拠が、ログにない）" else (.suspected_cause | san) end),
+      next_steps: ([.next_steps[] | "  - " + (. | san)] | join("\n")),
+      evidence: ([.evidence[] | "- " + . + "：" + ($map[.] | san)] | join("\n"))
+    }' "$RES") || die "変数を作れない"
+  BODY=$(render pr-comment.md "$VARS") || die "本文を作れない"
+  ISSUE_BODY=""
+  if [ "$ROUTE" = "merge" ]; then ISSUE_BODY=$(render issue.md "$VARS") || die "本文を作れない"; fi
   KIND=result
 else
-  BODY=$(fallback_body "調査の結果が得られない、または、検証に失敗した")
+  VARS=$(printf '%s' "$BASE_VARS" | jq -c '. + {reason: "調査の結果が得られない、または、検証に失敗した"}')
+  BODY=$(render failed.md "$VARS") || die "本文を作れない"
+  ISSUE_BODY=$(printf '%s\n%s\n%s\n' "$MARKER" "$FPLINE" "$(printf '%s\n' "$BODY" | sed '1d')")
   KIND=fallback
 fi
 
@@ -143,14 +149,12 @@ fi
 
 # ---- route = merge：Issue ----
 [ -n "$FP" ] || die "merge の投稿には、fingerprint が必要（未定義の扱い。docs/design.md）"
-FPLINE="<!-- triage-fingerprint:${FP} -->"
 ISSUES=$(gh_list "repos/$REPO/issues?state=open") || die "Issueを読めない"
 TARGET=$(printf '%s' "$ISSUES" | jq -c --arg fp "$FPLINE" '
   [.[] | select(has("pull_request") | not) | select(.state == "open")
        | select((.body // "") | split("\n") | map(sub("\r$"; "")) | any(. == $fp))]
   | sort_by(.number) | first // empty')
 if [ -z "$TARGET" ]; then
-  ISSUE_BODY=$(printf '%s\n%s\n%s\n' "$MARKER" "$FPLINE" "$(printf '%s\n' "$BODY" | sed '1d')")
   gh_write -X POST "repos/$REPO/issues" -f "title=mainのCIが失敗しています（自動）" -f "body=$ISSUE_BODY"
   summary "triage: Issueを作成（$KIND）"
   exit 0

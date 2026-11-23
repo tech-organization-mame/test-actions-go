@@ -95,6 +95,9 @@ count_char() { printf '%s' "$1" | tr -cd "$2" | wc -c | tr -d ' '; }
 count_marker_lines() { printf '%s\n' "$1" | grep -c '<!-- triage:' || true; }
 assert_no_html() {
   local nm; nm=$(non_marker "$1")
+  # テンプレート（デフォルトブランチのファイル）が書く折り畳みのタグは、許す（D-15）
+  nm=$(printf '%s
+' "$nm" | sed -E 's#</?(details|summary)>##g')
   if printf '%s\n' "$nm" | grep -Eq '<[A-Za-z/!]'; then fail "HTMLが残っている:
 $nm"; fi
 }

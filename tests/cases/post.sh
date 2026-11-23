@@ -532,3 +532,55 @@ t_P41__read_failure_exits_nonzero_without_writes() {
   assert_ne "$POST_RC" 0 "読み取り失敗時の終了コード"
   assert_writes 0
 }
+
+########## テンプレート（D-15）##########
+
+# spec: D-15（文面は、テンプレートのファイルで変えられる。折り畳みは、テンプレートが書く）
+t_P42__default_pr_template_has_collapsed_evidence() {
+  ctx_from post/context.pr.json
+  res_from post/result.test_failure.json
+  run_post
+  assert_pr_comment_created
+  local body; body=$(write_body 1)
+  assert_contains "$body" "<details>"
+  assert_contains "$body" "<summary>根拠（ログの引用）</summary>"
+  assert_contains "$body" "</details>"
+  # 要約、原因の仮説、次の対応は、折り畳みの外（最初の画面）にある
+  local before_details; before_details=${body%%<details>*}
+  assert_contains "$before_details" "- 要約："
+  assert_contains "$before_details" "- 原因の仮説："
+  assert_contains "$before_details" "round.go の丸め処理を確認する"
+  assert_not_contains "$before_details" "round_test.go:15"
+}
+
+# spec: D-15（テンプレートを差し替えると、スクリプトを変えずに、文面が変わる。AIの文字列は、再置換されない）
+t_P43__custom_template_changes_format_and_is_not_reexpanded() {
+  mkdir -p "$WORK/tpl"
+  cat > "$WORK/tpl/pr-comment.md" <<'TPL'
+{{marker}}
+CUSTOM {{summary}}
+{{mention_line}}
+TPL
+  export TRIAGE_TEMPLATE_DIR="$WORK/tpl"
+  ctx_from post/context.pr.json
+  res_from post/result.test_failure.json '.summary = "x {{marker}} y"'
+  run_post
+  assert_pr_comment_created
+  local body; body=$(write_body 1)
+  assert_contains "$body" "CUSTOM x {{marker}} y"
+  assert_eq "$(count_marker_lines "$body")" 1 "マーカーは、1行目の1つだけ"
+}
+
+# spec: D-15（未知の変数は、エラー。書き込まない）
+t_P44__unknown_template_variable_fails_without_writes() {
+  mkdir -p "$WORK/tpl"
+  printf '%s
+' '{{marker}}' '{{nope}}' > "$WORK/tpl/pr-comment.md"
+  export TRIAGE_TEMPLATE_DIR="$WORK/tpl"
+  ctx_from post/context.pr.json
+  res_from post/result.test_failure.json
+  run_post
+  assert_ne "$POST_RC" 0 "終了コード"
+  assert_writes 0
+}
+

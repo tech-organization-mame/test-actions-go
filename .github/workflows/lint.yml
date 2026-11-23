@@ -34,3 +34,6 @@ jobs:
           . .venv/bin/activate
           pip install jsonschema
           python scripts/validate_schemas.py
+
+      - name: Script tests (gate.sh, post.sh)
+        run: bash tests/run.sh
