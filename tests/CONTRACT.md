@@ -47,12 +47,12 @@
 |---|---|---|
 | `event` が `pull_request` でも `push` でもない（cron、手動など） | out_of_scope | out_of_scope |
 | `head_repository.full_name` が `GITHUB_REPOSITORY` と違う（fork） | out_of_scope | out_of_scope |
-| `pull_request`：`pull_requests` が空（PR特定不能） | out_of_scope | out_of_scope または record_only |
-| `pull_request`：PRの取得に失敗 | out_of_scope | out_of_scope または record_only |
+| `pull_request`：`pull_requests` が空（PR特定不能） | out_of_scope | out_of_scope |
+| `pull_request`：PRの取得に失敗 | out_of_scope | out_of_scope |
 | `pull_request`：PRの作成者がbot | out_of_scope | out_of_scope |
 | `pull_request`：上記以外 | pr（`pr_number` は先頭のPR） | post_target |
 | `push`：`head_branch` が `DEFAULT_BRANCH` でない | out_of_scope | out_of_scope |
-| `push`：コミットのPR取得に失敗、または、マージ済みPRなし（直接push） | out_of_scope | out_of_scope または record_only |
+| `push`：コミットのPR取得に失敗、または、マージ済みPRなし（直接push） | out_of_scope | out_of_scope |
 | `push`：マージ済みPRあり | merge（`pr_number` は null） | post_target |
 
 - **［決定→D-14で確定］** 対象外の場合、`route` と `state` は、ともに `out_of_scope`（`record_only` は、gate は決めない）。テストも、`out_of_scope` だけを許す。

@@ -633,6 +633,9 @@ t_P48__sanitize_reference_links_www_multiline_and_reformation() {
   assert_not_contains "$body" "evil.example"
   assert_not_contains "$body" "www."
   assert_not_contains "$body" "[ref]"
+  # リンクの構文（ASCIIの角括弧）が、残らない
+  assert_not_contains "$body" "["
+  assert_not_contains "$body" "]("
   assert_not_contains "$body" "<script"
   # 複数行は1行に畳まれる。コードブロックの記号が、行頭に来ないこと
   if printf '%s
@@ -678,4 +681,16 @@ t_P51__issue_url_of_other_repo_is_not_done() {
   jq -n --arg b "$(marker $RUN_ID 1)" '[{id:700,user:{login:"github-actions[bot]",type:"Bot"},body:$b,issue_url:"https://api.github.com/repos/other-org/other-repo/issues/7"}]' > "$f"
   run_post
   assert_pr_comment_created
+}
+
+# spec: D-15, D-18（AIの欄やログの引用に折り畳みタグがあっても、タグは、テンプレート由来の1組だけ）
+t_P52__details_tags_in_ai_fields_do_not_add_extra_tags() {
+  ctx_from post/context.pr.json
+  res_from post/result.test_failure.json '.summary = "</details><details><summary>x</summary>"'
+  run_post
+  assert_pr_comment_created
+  local body; body=$(write_body 1)
+  assert_eq "$(printf '%s' "$body" | grep -o '<details>' | wc -l | tr -d ' ')" 1 "<details> は1つ"
+  assert_eq "$(printf '%s' "$body" | grep -o '</details>' | wc -l | tr -d ' ')" 1 "</details> は1つ"
+  assert_eq "$(printf '%s' "$body" | grep -o '<summary>' | wc -l | tr -d ' ')" 1 "<summary> は1つ"
 }

@@ -63,6 +63,8 @@ else
   # push
   if [ "$HEAD_BRANCH" != "$DEFAULT_BRANCH" ]; then
     REASON="デフォルトブランチ以外へのpush"
+  elif [ "$RUNNER_IS_BOT" = "true" ]; then
+    REASON="botによる実行"
   elif ! PULLS=$(gh api "repos/$REPO/commits/$HEAD_SHA/pulls" 2>/dev/null); then
     REASON="コミットに紐づくPRを取得できない"
   elif printf '%s' "$PULLS" | jq -e --arg b "$DEFAULT_BRANCH" 'type == "array" and any(.[]; .merged_at != null and .base.ref == $b)' > /dev/null 2>&1; then

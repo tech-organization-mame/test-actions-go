@@ -226,13 +226,11 @@ t_G22__merged_pr_to_other_base_is_not_post_target() {
   assert_not_posted
 }
 
-# spec: design 2.1（メンション先が Bot の種類なら、[bot] が付かなくても、メンションしない）
-t_G23__bot_type_runner_without_bot_suffix_is_not_mentioned() {
+# spec: R-02, D-18（マージ後の経路でも、実行者がbotなら対象外。Bot種別は、[bot] が付かなくても同じ）
+t_G23__bot_runner_on_merge_route_is_out_of_scope() {
   event_from events/push_main.json '.workflow_run.actor.login="someapp" | .workflow_run.actor.type="Bot"'
   stub_api "$COMMIT_PULLS" gate/commit_pulls_merged.json
   run_gate
-  assert_eq "$GATE_RC" 0 "gate の終了コード"
-  assert_ctx_valid
-  assert_eq "$(ctx .mention)" null mention
+  assert_not_posted
 }
 
