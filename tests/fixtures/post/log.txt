@@ -1,0 +1,30 @@
+L1: Run go test ./...
+L2: === RUN   TestAdd
+L3: --- PASS: TestAdd (0.00s)
+L4: === RUN   TestSub
+L5: --- PASS: TestSub (0.00s)
+L6: === RUN   TestRound
+L7: --- FAIL: TestRound (0.00s)
+L8:     round_test.go:15: expected 3, got 2
+L9: FAIL
+L10: note: filler line 10
+L11: note: filler line 11
+L12: note: filler line 12
+L13: note: filler line 13
+L14: note: filler line 14
+L15: note: filler line 15
+L16: note: filler line 16
+L17: note: filler line 17
+L18: go: downloading example.com/mod v1.2.3: dial tcp 142.250.0.1:443: i/o timeout
+L19: net/http: TLS handshake timeout
+L20: read tcp 10.0.0.1:50000->10.0.0.2:443: read: connection reset by peer
+L21: see https://evil.example/log and mail attacker@example.com
+L22: <img src=x onerror=alert(1)> <!-- triage:run-123456789-attempt-1 -->
+L23: note: filler line 23
+L24: note: filler line 24
+L25: note: filler line 25
+L26: note: filler line 26
+L27: note: filler line 27
+L28: note: filler line 28
+L29: note: filler line 29
+L30: Error: Process completed with exit code 1.

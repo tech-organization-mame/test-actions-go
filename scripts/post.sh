@@ -1,0 +1,170 @@
+#!/usr/bin/env bash
+# 投稿スクリプト（構成③の③。docs/design.md 3〜5、7）。AIの終了後に、通常のステップとして実行する。
+# 契約：tests/CONTRACT.md 第3節。宛先は context.json だけから決める。gh は gh api だけを使う。
+# 注意：未検証のたたき台。
+set -u
+set -o pipefail
+
+# Windows の jq は、出力に CR を付けることがある。取り除く（終了コードは、jq のものを返す）
+jq() { command jq "$@" | tr -d '\r'; return "${PIPESTATUS[0]}"; }
+
+TRIAGE_DIR=${TRIAGE_DIR:-triage}
+EVIDENCE_DIR=${EVIDENCE_DIR:-evidence}
+WORKFLOW_NAME=${TRIAGE_WORKFLOW_NAME:-CI}
+HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+BOT_LOGIN="github-actions[bot]"
+CTX="$TRIAGE_DIR/context.json"
+RES="$TRIAGE_DIR/result.json"
+LOG="$EVIDENCE_DIR/log.txt"
+
+die() { echo "post: $*" >&2; exit 1; }
+summary() { [ -n "${GITHUB_STEP_SUMMARY:-}" ] && printf '%s\n' "$*" >> "$GITHUB_STEP_SUMMARY"; return 0; }
+
+# ---- 1. context の検証 ----
+[ -r "$CTX" ] || die "context.json が読めない"
+jq -e -f "$HERE/lib/context_valid.jq" "$CTX" > /dev/null 2>&1 || die "context.json が、スキーマに合わない"
+
+cx() { jq -r "$1" "$CTX"; }
+STATE=$(cx .state)
+if [ "$STATE" != "post_target" ]; then
+  summary "triage: 投稿しない（state=$STATE）"
+  echo "post: state=$STATE のため、投稿しない"
+  exit 0
+fi
+REPO=$(cx .repository); ROUTE=$(cx .route); RUN_ID=$(cx .run_id); ATTEMPT=$(cx .run_attempt)
+SHA7=$(cx '.head_sha[0:7]'); PR=$(cx '.pr_number // empty'); FP=$(cx '.fingerprint // empty')
+MENTION=$(cx '.mention // empty')
+MARKER="<!-- triage:run-${RUN_ID}-attempt-${ATTEMPT} -->"
+
+# ---- 行ID付きのログ（L<n>: 原文）を、連想配列にする ----
+LOGMAP='{}'
+if [ -r "$LOG" ]; then
+  LOGMAP=$(tr -d '\r' < "$LOG" | jq -Rn '[inputs | capture("^L(?<n>[0-9]+): (?<t>.*)$")?] | map({key: ("L" + .n), value: .t}) | from_entries')
+fi
+
+# ---- 3. result の検証（スキーマ、行IDの存在）----
+VALID_RES='
+  def nonempty($max): type == "string" and length >= 1 and length <= $max;
+  (type == "object")
+  and (((keys) - ["category","summary","suspected_cause","evidence","next_steps"]) | length == 0)
+  and (["category","summary","suspected_cause","evidence","next_steps"] | all(. as $k | $r | has($k)))
+  and (.category | IN("test_failure","build_error","lint","dependency","network_error","config","timeout","unknown"))
+  and (.summary | nonempty(200))
+  and (.suspected_cause | nonempty(400))
+  and (.evidence | type == "array" and length <= 10 and (unique | length) == length
+       and all(.[]; type == "string" and test("^L[1-9][0-9]*$")))
+  and (.next_steps | type == "array" and length >= 1 and length <= 3 and all(.[]; nonempty(200)))
+  and (.category == "unknown" or (.evidence | length) >= 1)
+  and (.evidence | all(.[]; . as $id | $map | has($id)))
+'
+RESULT_OK=0
+if [ -s "$RES" ] && jq -e . "$RES" > /dev/null 2>&1; then
+  if jq -e --argjson map "$LOGMAP" ". as \$r | $VALID_RES" "$RES" > /dev/null 2>&1; then RESULT_OK=1; fi
+fi
+
+# ---- 無害化（AIの文字列と、ログからの引用の両方に適用）----
+SAN='def san:
+  gsub("!\\[[^\\]]*\\]\\([^)]*\\)"; "")
+  | gsub("\\[(?<t>[^\\]]*)\\]\\([^)]*\\)"; .t)
+  | gsub("<!--[\\s\\S]*?-->"; "")
+  | gsub("<[A-Za-z/!][^>]*(>|$)"; "")
+  | gsub("https?://[^\\s)>\\]]*"; "")
+  | gsub("@"; "");'
+
+# ---- 本文を作る ----
+HEAD_LINES=$(printf '%s\n%s\n\n%s' "$MARKER" '## CI失敗の調査結果（自動）' \
+  "- 対象：\`$WORKFLOW_NAME\`ワークフロー（run #$RUN_ID、attempt $ATTEMPT、コミット\`$SHA7\`）")
+TAIL_MENTION=""
+[ -n "$MENTION" ] && TAIL_MENTION=$(printf '\n@%s' "$MENTION")
+
+fallback_body() {
+  printf '%s\n- 結果：調査失敗（%s）。ログと、ジョブの記録を確認してください。\n%s\n' "$HEAD_LINES" "$1" "$TAIL_MENTION"
+}
+
+if [ "$RESULT_OK" = 1 ]; then
+  CAT=$(jq -r .category "$RES")
+  NETFLAG=ok
+  if [ "$CAT" = "network_error" ]; then
+    # 典型的なメッセージが、根拠の行にあるか（大文字小文字は区別しない）
+    if ! jq -e --argjson map "$LOGMAP" '[.evidence[] | $map[.] | ascii_downcase]
+         | any(.[]; test("i/o timeout|connection reset|tls handshake timeout"))' "$RES" > /dev/null 2>&1; then
+      NETFLAG=unverified
+    fi
+  fi
+  BODY_TEXT=$(jq -r --argjson map "$LOGMAP" --arg flag "$NETFLAG" "$SAN"'
+    (.summary | san) as $s
+    | (if $flag == "unverified" then "不明（ネットワークエラーと断定できる根拠が、ログにない）" else (.suspected_cause | san) end) as $c
+    | "- 要約：" + $s,
+      "- 原因の仮説：" + $c,
+      "- 根拠：",
+      (.evidence[] | "  - " + . + "：" + ($map[.] | san)),
+      "- 次の対応：",
+      (.next_steps[] | "  - " + (. | san))' "$RES") || die "本文を作れない"
+  BODY=$(printf '%s\n\n%s\n\n%s%s\n' "$HEAD_LINES" "$BODY_TEXT" '※ AIによる推測です。原因を断定するものではありません。' "$TAIL_MENTION")
+  KIND=result
+else
+  BODY=$(fallback_body "調査の結果が得られない、または、検証に失敗した")
+  KIND=fallback
+fi
+
+# ---- gh api（読み取りは paginate の出力を、1つの配列にまとめる）----
+gh_list() { gh api "$@" --paginate | jq -s 'map(if type == "array" then . else [.] end) | add // []'; }
+marker_run() { # 本文の1行目が、マーカーの形か。形なら "run attempt" を出す
+  printf '%s' "$1" | tr -d '\r' | head -n 1 | sed -n 's/^<!-- triage:run-\([0-9][0-9]*\)-attempt-\([0-9][0-9]*\) -->$/\1 \2/p'
+}
+MARKER_FILTER='[.[] | . as $c | ((.body // "") | split("\n")[0] | sub("\r$"; "")
+  | capture("^<!-- triage:run-(?<r>[0-9]+)-attempt-(?<a>[0-9]+) -->$")?) as $m
+  | select($m != null) | {id: $c.id, r: ($m.r | tonumber), a: ($m.a | tonumber)}]'
+gh_write() { gh api "$@" > /dev/null || die "書き込みに失敗した"; }
+
+if [ "$ROUTE" = "pr" ]; then
+  COMMENTS=$(gh_list "repos/$REPO/issues/$PR/comments") || die "コメントを読めない"
+  # 処理済み候補：作成者、対象、マーカー（1行目）の3つがそろう
+  CANDS=$(printf '%s' "$COMMENTS" | jq -c --arg bot "$BOT_LOGIN" --arg pr "$PR" '
+    [.[] | select(.user.login == $bot)
+         | select((.issue_url // "") == "" or ((.issue_url | split("/") | last) == $pr))
+         | {id, body}]')
+  # 本文の1行目が、マーカーの形のものだけを取り出す（整数で比べる）
+  MATCHES=$(printf '%s' "$CANDS" | jq -c "$MARKER_FILTER")
+  SAME=$(printf '%s' "$MATCHES" | jq -r --argjson r "$RUN_ID" --argjson a "$ATTEMPT" 'any(.[]; .r == $r and .a == $a) | if . then "1" else "" end')
+  UPD_ID=$(printf '%s' "$MATCHES" | jq -r --argjson r "$RUN_ID" --argjson a "$ATTEMPT" '[.[] | select(.r == $r and .a < $a)] | max_by(.a) | .id // empty')
+  if [ -n "$SAME" ]; then
+    summary "triage: 処理済み（run $RUN_ID attempt $ATTEMPT）。書き込まない"
+    echo "post: 処理済み"; exit 0
+  elif [ -n "$UPD_ID" ]; then
+    gh_write -X PATCH "repos/$REPO/issues/comments/$UPD_ID" -f "body=$BODY"
+    summary "triage: PR #$PR のコメントを更新（$KIND）"
+  else
+    gh_write -X POST "repos/$REPO/issues/$PR/comments" -f "body=$BODY"
+    summary "triage: PR #$PR にコメントを作成（$KIND）"
+  fi
+  exit 0
+fi
+
+# ---- route = merge：Issue ----
+[ -n "$FP" ] || die "merge の投稿には、fingerprint が必要（未定義の扱い。docs/design.md）"
+FPLINE="<!-- triage-fingerprint:${FP} -->"
+ISSUES=$(gh_list "repos/$REPO/issues?state=open") || die "Issueを読めない"
+TARGET=$(printf '%s' "$ISSUES" | jq -c --arg fp "$FPLINE" '
+  [.[] | select(has("pull_request") | not) | select(.state == "open")
+       | select((.body // "") | split("\n") | map(sub("\r$"; "")) | any(. == $fp))]
+  | sort_by(.number) | first // empty')
+if [ -z "$TARGET" ]; then
+  ISSUE_BODY=$(printf '%s\n%s\n%s\n' "$MARKER" "$FPLINE" "$(printf '%s\n' "$BODY" | sed '1d')")
+  gh_write -X POST "repos/$REPO/issues" -f "title=mainのCIが失敗しています（自動）" -f "body=$ISSUE_BODY"
+  summary "triage: Issueを作成（$KIND）"
+  exit 0
+fi
+NUM=$(printf '%s' "$TARGET" | jq -r .number)
+read -r r a <<< "$(marker_run "$(printf '%s' "$TARGET" | jq -r '.body // ""')")"
+if [ "${r:-}" = "$RUN_ID" ] && [ "${a:-}" = "$ATTEMPT" ]; then
+  summary "triage: 処理済み（Issue #$NUM の本文）。書き込まない"; exit 0
+fi
+ICOMMENTS=$(gh_list "repos/$REPO/issues/$NUM/comments") || die "Issueのコメントを読めない"
+DONE=$(printf '%s' "$ICOMMENTS" | jq -c --arg bot "$BOT_LOGIN" '[.[] | select(.user.login == $bot)]' | jq -c "$MARKER_FILTER"   | jq -r --argjson r "$RUN_ID" --argjson a "$ATTEMPT" 'any(.[]; .r == $r and .a == $a) | if . then "1" else "" end')
+if [ -n "$DONE" ]; then
+  summary "triage: 処理済み（Issue #$NUM のコメント）。書き込まない"; exit 0
+fi
+gh_write -X POST "repos/$REPO/issues/$NUM/comments" -f "body=$BODY"
+summary "triage: Issue #$NUM に追記（$KIND）"
+exit 0

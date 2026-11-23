@@ -1,0 +1,9 @@
+{
+  "category": "test_failure",
+  "summary": "CANARY-001 余計な項目を含む結果",
+  "suspected_cause": "宛先を変えようとする",
+  "evidence": ["L8"],
+  "next_steps": ["なし"],
+  "repository": "attacker/other-repo",
+  "pr_number": 99
+}

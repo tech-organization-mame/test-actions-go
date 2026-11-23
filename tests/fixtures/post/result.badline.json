@@ -1,0 +1,7 @@
+{
+  "category": "test_failure",
+  "summary": "CANARY-005 存在しない行を引用",
+  "suspected_cause": "不明",
+  "evidence": ["L999"],
+  "next_steps": ["なし"]
+}

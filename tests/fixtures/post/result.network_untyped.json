@@ -1,0 +1,7 @@
+{
+  "category": "network_error",
+  "summary": "テストが失敗した",
+  "suspected_cause": "ネットワーク障害が原因（CANARY-002）",
+  "evidence": ["L8"],
+  "next_steps": ["ジョブを再実行する"]
+}

@@ -39,8 +39,8 @@ Claudeを起動する前に、共通のスクリプト（`scripts/gate.sh`、bas
 | 元のイベント | `pull_request`、または、デフォルトブランチへの`push` | 対象外 |
 | リポジトリ | 元のrunの`head_repository`が、同じリポジトリ（forkを除外） | 対象外 |
 | PR | `pull_requests`から対象のPRを決める。PRの作成者がbotなら対象外 | 対象外 |
-| mainのpush | コミットに紐づくマージ済みPRがあれば`merge`。なければ（直接push）、対象外 | 対象外（記録のみ） |
-| 実行指示した人 | 初回は`actor`、再実行は`triggering_actor`。PRの作成者とは別に扱う | メンションなし |
+| mainのpush | コミットに紐づくマージ済みPRがあれば`merge`。なければ（直接push）、対象外 | 対象外 |
+| 実行指示した人 | 初回は`actor`、再実行は`triggering_actor`。PRの作成者とは別に扱う。取れない、またはbotのときは、`mention: null`（メンションなし） | `null` |
 
 出力は、`triage/context.json`（`route`、`state`）。`out_of_scope`のときは、AIを呼ばず、投稿しない。3つのワークフローは、この判定の結果の`state`が`post_target`のときだけ、Claudeのステップを実行する。
 
@@ -49,10 +49,10 @@ Claudeを起動する前に、共通のスクリプト（`scripts/gate.sh`、bas
 
 | state | 意味 | AI | 投稿 |
 |---|---|---|---|
-| `out_of_scope` | 対象外または判定不能（fork、bot、cron、手動、PR特定不能） | 呼ばない | なし（ジョブサマリーのみ） |
+| `out_of_scope` | 対象外または判定不能（fork、bot、cron、手動、PR特定不能、直接push）。`gate.sh`は、`record_only`を決めない（D-14） | 呼ばない | なし（ジョブサマリーのみ） |
 | `record_only` | 対象だが、投稿しない（復旧済み、処理済み、監視対象外、重複で追記不要） | 呼ばない | なし（ジョブサマリーのみ） |
-| `post_target` | 投稿する | 呼ぶ | 通常は、AIの結果で投稿。結果がない、または検証に失敗したら、定型の投稿 |
-| `analysis_failed` | `post_target`だが、AIの結果が得られなかった | 呼んだが失敗 | 定型の「調査失敗」を投稿 |
+| `post_target` | 投稿する | 呼ぶ | 通常は、AIの結果で投稿。結果がない、または検証に失敗したら、定型の「調査失敗」を投稿（定型の投稿は、`post_target`のときだけ） |
+| `analysis_failed` | `post_target`だが、AIの結果が得られなかった | 呼んだが失敗 | ジョブサマリーに記録する（投稿は、`post.sh`が、結果なし・検証失敗を、`post_target`として扱って行う。D-14） |
 
 投稿先の決定（`post_target`の実行）：
 
@@ -105,21 +105,59 @@ Issueの重複の判定に使う近似。「同じ原因」の識別ではない
 ## 7. テンプレート（投稿の文面）
 AIの出力は、テンプレートに当てはめる。AIは、枠を変えられない。
 
+- テンプレートは、ファイルに分ける（`templates/pr-comment.md`、`templates/issue.md`、`templates/failed.md`）。文面と折り畳みの構成は、スクリプトを変えずに、変更できる（D-15）
+- 置換するのは、`{{変数}}`だけ。使える変数：`marker`、`workflow`、`run_id`、`attempt`、`sha7`、`summary`、`cause`、`next_steps`、`evidence`、`mention_line`
+- `<details>`などのHTMLは、テンプレート（デフォルトブランチのファイル）に書く。AIの出力は、無害化で、HTMLを除去する。HTMLを、AIが書くことはできない
+- 折り畳み：PRのコメントは、読みやすさと、スクロールを減らすため。Issueは、最初の画面（ファーストビュー）を軽くするため
+
+PRのコメント（`templates/pr-comment.md`）：
+
 ```markdown
-<!-- triage:run-<run_id>-attempt-<n> -->
+{{marker}}
 ## CI失敗の調査結果（自動）
 
-- 対象：`<workflow>`ワークフロー（run #<run_id>、attempt <n>、コミット`<sha7>`）
-- 要約：<summary>
-- 原因の仮説：<suspected_cause>
-- 根拠：<引用。スクリプトが、行IDから組み立てる>
-- 次の対応：<next_steps>
+- 対象：`{{workflow}}`ワークフロー（run #{{run_id}}、attempt {{attempt}}、コミット`{{sha7}}`）
+- 要約：{{summary}}
+- 原因の仮説：{{cause}}
+- 次の対応：
+{{next_steps}}
+
+<details>
+<summary>根拠（ログの引用）</summary>
+
+{{evidence}}
+
+</details>
 
 ※ AIによる推測です。原因を断定するものではありません。
-<mention>
+{{mention_line}}
 ```
 
-Issueは、見出しを「mainのCIが失敗しています（自動）」にする。同じ失敗の再発は、コメントで追記する。
+Issue（`templates/issue.md`）：1行目はマーカー、2行目はフィンガープリント。最初の画面には、要約、原因の仮説、次の対応だけを置く。対象の実行と根拠は、折り畳む。
+
+```markdown
+{{marker}}
+{{fingerprint_line}}
+## mainのCIが失敗しています（自動）
+
+- 要約：{{summary}}
+- 原因の仮説：{{cause}}
+- 次の対応：
+{{next_steps}}
+
+<details>
+<summary>対象の実行と根拠</summary>
+
+- 対象：`{{workflow}}`ワークフロー（run #{{run_id}}、attempt {{attempt}}、コミット`{{sha7}}`）
+{{evidence}}
+
+</details>
+
+※ AIによる推測です。原因を断定するものではありません。
+{{mention_line}}
+```
+
+同じ失敗の再発は、Issueへのコメントで追記する（本文は、PRのコメントと同じテンプレート）。調査失敗の定型の投稿は、`templates/failed.md`。
 
 ## 8. 権限と許可
 | ステップ | ジョブの権限 | 備考 |
