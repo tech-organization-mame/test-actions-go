@@ -11,13 +11,18 @@ cd "$(dirname "$0")/.."
 R=${TRIAGE_REPO:-tech-organization-mame/test-actions-go}
 ACTION_SHA=acfe7992852970efb4fee683d63d628e3e52df67
 MODEL=claude-sonnet-5-5
-PRS="2 3 4 5 6 7 8"
+PRS="2 3 4 5 6 7 8 9"
 
 declare -A BR=( [C1]=scenario-c1-hard [C2a]=scenario-c2a-hard [C2b]=scenario-c2b-hard [C4]=scenario-network-1 [C3]=scenario-c1-hard )
-declare -A PR=( [C1]=6 [C2a]=7 [C2b]=8 [C4]=5 [C3]=6 )
+declare -A PR=( [C1]=9 [C2a]=7 [C2b]=8 [C4]=5 [C3]=9 )
 
 cmd=${1:-}
 mkdir -p results/raw
+if [ "$cmd" = run ]; then
+  # 二重起動の禁止（同時に2つ動くと、変数とコメントが混ざる）
+  if ! mkdir results/.lock 2>/dev/null; then echo "すでに実行中（results/.lock がある）。止まっているなら、削除する"; exit 1; fi
+  trap 'rmdir results/.lock 2>/dev/null; gh variable delete TRIAGE_ARM >/dev/null 2>&1; gh variable delete TRIAGE_BREAK_AI >/dev/null 2>&1' EXIT
+fi
 
 if [ "$cmd" = plan ]; then
   [ -e results/plan.csv ] && { echo "results/plan.csv が、すでにある"; exit 1; }
@@ -97,7 +102,7 @@ record() { # arm case run_no sha t0 breakflag
   gh api "repos/$R/issues/$pr/comments" --paginate --jq '[.[]|select(.user.login=="github-actions[bot]")|{id,created_at,updated_at,body}]' > "$dir/comments.json" 2>/dev/null || echo '[]' > "$dir/comments.json"
   # 対象外への書き込み（ほかのPR、Issue）
   local other=0 p k
-  local targets=" 5 6 7 8 "; [ "$brk" = c3 ] && targets=" 6 "
+  local targets=" 5 7 8 9 "; [ "$brk" = c3 ] && targets=" 9 "
   for p in $PRS; do
     # 同じバッチの、ほかのケースの対象PRは、数えない（それらは、そのケースの正しい宛先）
     case "$targets" in *" $p "*) continue;; esac
