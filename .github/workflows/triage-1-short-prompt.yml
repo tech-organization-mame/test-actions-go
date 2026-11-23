@@ -53,4 +53,4 @@ jobs:
             --max-turns 15
             --allowedTools "Bash(gh *)"
           display_report: "false"
-          show_full_output: "true"  # 一時的：原因調査のため。調査後に false へ戻す
+          show_full_output: "false"
