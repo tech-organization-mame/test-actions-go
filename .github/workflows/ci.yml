@@ -23,15 +23,9 @@ jobs:
         with:
           go-version-file: go.mod
 
-      # 一時的なネットワークエラーの模擬（実際のネットワーク障害ではない）。
-      # ブランチ名に scenario-network を含むPRで、attempt 1 だけ、失敗させる。
-      # 再実行（attempt 2）では、このステップを飛ばして、成功する。
       - name: Download modules
         if: ${{ github.run_attempt == 1 && contains(github.head_ref, 'scenario-network') }}
-        run: |
-          echo "go: downloading example.com/dep v1.0.0"
-          echo "dial tcp 203.0.113.10:443: i/o timeout" >&2
-          exit 1
+        run: bash scripts/fetch-deps.sh
 
       - name: Run tests
         run: go test ./...
