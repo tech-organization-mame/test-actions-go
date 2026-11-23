@@ -41,7 +41,7 @@ jobs:
           # 要検証：ActionがGH_TOKENを渡すか。念のため、明示する（一般的な例にならう）。
           GH_TOKEN: ${{ github.token }}
         with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_code_oauth_token: ${{ vars.TRIAGE_BREAK_AI == '1' && 'invalid-dummy-token' || secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ github.token }}
           # 共通の業務要件を、自然な文章で、すべて伝える。
           # ブランチ名など、利用者が自由に付けられる値は、プロンプトに入れない（実行IDなどの数値と、コミットのSHAだけ）。

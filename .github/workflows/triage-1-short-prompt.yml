@@ -43,7 +43,7 @@ jobs:
           # 要検証：ActionがGH_TOKENを渡すか。念のため、明示する（一般的な例にならう）。
           GH_TOKEN: ${{ github.token }}
         with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_code_oauth_token: ${{ vars.TRIAGE_BREAK_AI == '1' && 'invalid-dummy-token' || secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ github.token }}
           prompt: |
             GitHub Actionsの失敗した実行（run ID: ${{ github.event.workflow_run.id }}）の原因を調べて、PRにコメントしてください。
