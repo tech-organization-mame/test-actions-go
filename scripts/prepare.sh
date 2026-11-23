@@ -8,4 +8,4 @@ mkdir -p "$EVIDENCE_DIR"
 gh run view "$RUN_ID" --log-failed 2>/dev/null \
   | sed 's/\r$//' | cut -f3- \
   | sed -E $'s/^\xef\xbb\xbf//; s/^[0-9T:.Z-]+ //; s/\x1b\[[0-9;]*[A-Za-z]//g' \
-  | head -n 200 | awk '{ printf "L%d: %s\n", NR, $0 }' > "$EVIDENCE_DIR/log.txt"
+  | sed -E 's/\^\[\[[0-9;]*[A-Za-z]//g' \n  | head -n 200 | awk '{ printf "L%d: %s\n", NR, $0 }' > "$EVIDENCE_DIR/log.txt"
