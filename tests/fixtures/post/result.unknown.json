@@ -1,0 +1,7 @@
+{
+  "category": "unknown",
+  "summary": "失敗を観測したが、原因を絞れない",
+  "suspected_cause": "不明",
+  "evidence": [],
+  "next_steps": ["ログを確認する"]
+}

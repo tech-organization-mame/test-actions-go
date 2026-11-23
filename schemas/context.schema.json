@@ -27,8 +27,8 @@
     "event": { "type": "string", "minLength": 1, "maxLength": 40 },
     "pr_number": { "type": ["integer", "null"], "minimum": 1 },
     "mention": {
-      "description": "メンション先。Actionsを実行指示した人（初回は初回実行者、再実行は再実行者）",
-      "type": "string",
+      "description": "メンション先。Actionsを実行指示した人（初回は初回実行者、再実行は再実行者）。取れない、またはbotのときは null（メンションなし）",
+      "type": ["string", "null"],
       "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$"
     },
     "same_sha_rerun": {

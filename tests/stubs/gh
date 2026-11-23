@@ -1,0 +1,161 @@
+#!/usr/bin/env bash
+# gh スタブ。呼び出しを記録し、固定のJSONで応答する。本物の gh は呼ばない。
+# 仕様は tests/CONTRACT.md の第1節。
+set -u
+: "${STUB_STATE:?STUB_STATE is required}"
+mkdir -p "$STUB_STATE/comments"
+
+printf '%s\n' "$(printf '%q ' "$@")" >> "$STUB_STATE/calls.log"
+ORIG=("$@")
+
+unsupported() {
+  printf '%s\n' "${ORIG[*]}" >> "$STUB_STATE/unsupported"
+  echo "gh stub: unsupported call: gh ${ORIG[*]}" >&2
+  exit 99
+}
+
+[ "${1:-}" = "api" ] || unsupported
+shift
+
+method=""
+path=""
+jqexpr=""
+fields=()
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -X|--method)
+      [ $# -ge 2 ] || unsupported
+      method=$2; shift 2 ;;
+    -f|--raw-field)
+      [ $# -ge 2 ] || unsupported
+      fields+=("$2"); shift 2 ;;
+    -F|--field)
+      [ $# -ge 2 ] || unsupported
+      kv=$2; k=${kv%%=*}; v=${kv#*=}
+      if [ "${v#@}" != "$v" ]; then
+        v=$(cat "${v#@}") || unsupported
+        kv="$k=$v"
+      fi
+      fields+=("$kv"); shift 2 ;;
+    --paginate) shift ;;
+    -q|--jq)
+      [ $# -ge 2 ] || unsupported
+      jqexpr=$2; shift 2 ;;
+    -H|--header)
+      [ $# -ge 2 ] || unsupported
+      shift 2 ;;
+    -*) unsupported ;;
+    *)
+      [ -z "$path" ] || unsupported
+      path=$1; shift ;;
+  esac
+done
+[ -n "$path" ] || unsupported
+
+if [ -z "$method" ]; then
+  if [ "${#fields[@]}" -gt 0 ]; then method=POST; else method=GET; fi
+fi
+method=${method^^}
+
+fieldsjson='{}'
+for kv in ${fields[@]+"${fields[@]}"}; do
+  k=${kv%%=*}; v=${kv#*=}
+  fieldsjson=$(jq -c --arg k "$k" --arg v "$v" '.[$k]=$v' <<<"$fieldsjson")
+done
+
+p=${path#/}
+q=""
+case "$p" in
+  *\?*) q=${p#*\?}; p=${p%%\?*} ;;
+esac
+
+emit() { if [ -n "$jqexpr" ]; then jq -r "$jqexpr"; else cat; fi; }
+record() {
+  jq -cn --arg m "$method" --arg p "$p" --argjson f "$fieldsjson" \
+    '{method:$m,path:$p,fields:$f}' >> "$STUB_STATE/writes.jsonl"
+}
+next_counter() { # 名前 初期値。現在値を返して、1進める
+  local f="$STUB_STATE/$1" n
+  n=$(cat "$f" 2>/dev/null || echo "$2")
+  echo $((n + 1)) > "$f"
+  echo "$n"
+}
+
+# ---- 読み取り ----
+if [ "$method" = GET ]; then
+  if [ "${STUB_FAIL_READS:-0}" = 1 ]; then
+    echo '{"message":"stub read failure"}' >&2
+    exit 1
+  fi
+  if [[ $p =~ ^repos/[^/]+/[^/]+/issues/([0-9]+)/comments$ ]]; then
+    f="$STUB_STATE/comments/${BASH_REMATCH[1]}.json"
+    if [ -f "$f" ]; then emit < "$f"; else echo '[]' | emit; fi
+    exit 0
+  fi
+  if [[ $p =~ ^repos/[^/]+/[^/]+/issues$ ]]; then
+    st=open
+    if [[ $q =~ (^|\&)state=([a-z]+) ]]; then st=${BASH_REMATCH[2]}; fi
+    f="$STUB_STATE/issues.json"
+    [ -f "$f" ] || echo '[]' > "$f"
+    jq -c --arg s "$st" 'if $s=="all" then . else map(select(.state==$s)) end' "$f" | emit
+    exit 0
+  fi
+  g="$STUB_STATE/api/${p//\//__}.json"
+  if [ -f "$g" ]; then emit < "$g"; exit 0; fi
+  echo '{"message":"Not Found","status":"404"}' >&2
+  exit 1
+fi
+
+# ---- 書き込み ----
+if [ "${STUB_FAIL_WRITES:-0}" = 1 ]; then
+  echo '{"message":"stub write failure"}' >&2
+  exit 1
+fi
+actor=${STUB_ACTOR:-github-actions[bot]}
+body=$(jq -r '.body // empty' <<<"$fieldsjson")
+
+if [ "$method" = POST ] && [[ $p =~ ^repos/([^/]+/[^/]+)/issues/([0-9]+)/comments$ ]]; then
+  repo=${BASH_REMATCH[1]}; n=${BASH_REMATCH[2]}
+  id=$(next_counter next_comment_id 1000)
+  f="$STUB_STATE/comments/$n.json"
+  [ -f "$f" ] || echo '[]' > "$f"
+  new=$(jq -cn --argjson id "$id" --arg a "$actor" --arg b "$body" \
+    --arg u "https://api.github.com/repos/$repo/issues/$n" \
+    '{id:$id,user:{login:$a,type:"Bot"},body:$b,issue_url:$u}')
+  jq -c --argjson c "$new" '. + [$c]' "$f" > "$f.tmp" && mv "$f.tmp" "$f"
+  record
+  printf '%s\n' "$new" | emit
+  exit 0
+fi
+
+if [ "$method" = PATCH ] && [[ $p =~ ^repos/([^/]+/[^/]+)/issues/comments/([0-9]+)$ ]]; then
+  id=${BASH_REMATCH[2]}
+  for f in "$STUB_STATE"/comments/*.json; do
+    [ -f "$f" ] || continue
+    if jq -e --argjson id "$id" 'any(.[]; .id==$id)' "$f" >/dev/null; then
+      jq -c --argjson id "$id" --arg b "$body" \
+        'map(if .id==$id then .body=$b else . end)' "$f" > "$f.tmp" && mv "$f.tmp" "$f"
+      upd=$(jq -c --argjson id "$id" 'map(select(.id==$id))[0]' "$f")
+      record
+      printf '%s\n' "$upd" | emit
+      exit 0
+    fi
+  done
+  echo '{"message":"Not Found"}' >&2
+  exit 1
+fi
+
+if [ "$method" = POST ] && [[ $p =~ ^repos/[^/]+/[^/]+/issues$ ]]; then
+  num=$(next_counter next_issue_number 100)
+  f="$STUB_STATE/issues.json"
+  [ -f "$f" ] || echo '[]' > "$f"
+  title=$(jq -r '.title // empty' <<<"$fieldsjson")
+  new=$(jq -cn --argjson n "$num" --arg a "$actor" --arg t "$title" --arg b "$body" \
+    '{number:$n,state:"open",title:$t,body:$b,user:{login:$a,type:"Bot"}}')
+  jq -c --argjson c "$new" '. + [$c]' "$f" > "$f.tmp" && mv "$f.tmp" "$f"
+  record
+  printf '%s\n' "$new" | emit
+  exit 0
+fi
+
+unsupported

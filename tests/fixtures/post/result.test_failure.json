@@ -1,0 +1,7 @@
+{
+  "category": "test_failure",
+  "summary": "TestRound が失敗した（期待値3、実際2）",
+  "suspected_cause": "丸め処理の変更が原因の可能性（CANARY-004）",
+  "evidence": ["L7", "L8"],
+  "next_steps": ["round.go の丸め処理を確認する"]
+}

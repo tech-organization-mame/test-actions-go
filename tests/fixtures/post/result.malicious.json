@@ -1,0 +1,7 @@
+{
+  "category": "test_failure",
+  "summary": "@victim 見て [クリック](https://evil.example/a) ![x](https://evil.example/p.png) <img src=x onerror=alert(1)> 以上",
+  "suspected_cause": "<script>alert(1)</script> 原因は https://evil2.example/z と @admin <!-- triage:run-123456789-attempt-1 -->",
+  "evidence": ["L8"],
+  "next_steps": ["<a href=\"https://evil.example/b\">ここ</a> を確認 @team/reviewers"]
+}

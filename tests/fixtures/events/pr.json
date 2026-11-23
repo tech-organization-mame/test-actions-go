@@ -1,0 +1,18 @@
+{
+  "action": "completed",
+  "repository": {"full_name": "tech-organization-mame/test-actions-go"},
+  "workflow_run": {
+    "id": 123456789,
+    "name": "CI",
+    "run_attempt": 1,
+    "event": "pull_request",
+    "conclusion": "failure",
+    "head_branch": "scenario-round-failure",
+    "head_sha": "0123456789abcdef0123456789abcdef01234567",
+    "actor": {"login": "octocat", "type": "User"},
+    "triggering_actor": {"login": "octocat", "type": "User"},
+    "head_repository": {"full_name": "tech-organization-mame/test-actions-go", "fork": false},
+    "repository": {"full_name": "tech-organization-mame/test-actions-go"},
+    "pull_requests": [{"number": 7}]
+  }
+}
