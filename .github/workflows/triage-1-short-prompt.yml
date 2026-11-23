@@ -44,6 +44,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          # ①②のAIに、ゲートの出力（context.json）を見せない。作業ディレクトリの外に置く
+          TRIAGE_DIR: ${{ runner.temp }}/triage
         run: bash scripts/gate.sh
 
       - name: Analyze and report (AI)
