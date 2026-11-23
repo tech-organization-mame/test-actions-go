@@ -17,8 +17,5 @@ __pycache__/
 /.claude/
 /CLAUDE.md
 
-# 試行の記録は、75試行の完了まで、リポジトリに置かない（調査役が、過去の結果を読むため）
-/results/raw/
-/results/trials.csv
 /results/invalid/
 results/.lock/

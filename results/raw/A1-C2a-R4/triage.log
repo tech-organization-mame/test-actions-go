@@ -1,0 +1,521 @@
+triage	Set up job	﻿2026-11-23T15:37:23.9075537Z Current runner version: '2.338.2'
+triage	Set up job	2026-11-23T15:37:23.9115188Z ##[group]Runner Image Provisioner
+triage	Set up job	2026-11-23T15:37:23.9116574Z Hosted Compute Agent
+triage	Set up job	2026-11-23T15:37:23.9118068Z Version: 20261111.635
+triage	Set up job	2026-11-23T15:37:23.9119425Z Commit: b8a594ea514ff44cadb5342986c68b1eac6e22ed
+triage	Set up job	2026-11-23T15:37:23.9120989Z Build Date: 2026-11-11T01:49:01Z
+triage	Set up job	2026-11-23T15:37:23.9122385Z Worker ID: {7a3a8240-0725-4d10-a518-7bc0f8d6fa55}
+triage	Set up job	2026-11-23T15:37:23.9123773Z Region: eastus
+triage	Set up job	2026-11-23T15:37:23.9124758Z Cloud: Azure
+triage	Set up job	2026-11-23T15:37:23.9125915Z ##[endgroup]
+triage	Set up job	2026-11-23T15:37:23.9128700Z ##[group]Operating System
+triage	Set up job	2026-11-23T15:37:23.9130046Z Ubuntu
+triage	Set up job	2026-11-23T15:37:23.9130981Z 26.04.1
+triage	Set up job	2026-11-23T15:37:23.9131827Z LTS
+triage	Set up job	2026-11-23T15:37:23.9132937Z ##[endgroup]
+triage	Set up job	2026-11-23T15:37:23.9133959Z ##[group]Runner Image
+triage	Set up job	2026-11-23T15:37:23.9135257Z Image: ubuntu-26.04
+triage	Set up job	2026-11-23T15:37:23.9136327Z Version: 20261116.202.1
+triage	Set up job	2026-11-23T15:37:23.9138572Z Included Software: https://github.com/actions/runner-images/blob/ubuntu26/20261116.202/images/ubuntu/Ubuntu2604-Readme.md
+triage	Set up job	2026-11-23T15:37:23.9141777Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu26%2F20261116.202
+triage	Set up job	2026-11-23T15:37:23.9143492Z ##[endgroup]
+triage	Set up job	2026-11-23T15:37:23.9145938Z ##[group]GITHUB_TOKEN Permissions
+triage	Set up job	2026-11-23T15:37:23.9149255Z Actions: read
+triage	Set up job	2026-11-23T15:37:23.9150618Z Contents: read
+triage	Set up job	2026-11-23T15:37:23.9151618Z Issues: write
+triage	Set up job	2026-11-23T15:37:23.9152703Z Metadata: read
+triage	Set up job	2026-11-23T15:37:23.9153715Z PullRequests: write
+triage	Set up job	2026-11-23T15:37:23.9154878Z ##[endgroup]
+triage	Set up job	2026-11-23T15:37:23.9158327Z Secret source: Actions
+triage	Set up job	2026-11-23T15:37:23.9160231Z Cache mode: read
+triage	Set up job	2026-11-23T15:37:23.9161513Z Prepare workflow directory
+triage	Set up job	2026-11-23T15:37:23.9675528Z Prepare all required actions
+triage	Set up job	2026-11-23T15:37:23.9725739Z Getting action download info
+triage	Set up job	2026-11-23T15:37:24.1526110Z Download action repository 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+triage	Set up job	2026-11-23T15:37:24.2542477Z Download action repository 'anthropics/claude-code-action@acfe7992852970efb4fee683d63d628e3e52df67' (SHA:acfe7992852970efb4fee683d63d628e3e52df67)
+triage	Set up job	2026-11-23T15:37:24.5596817Z Getting action download info
+triage	Set up job	2026-11-23T15:37:24.6370062Z Download action repository 'oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6' (SHA:0c5077e51419868618aeaa5fe8019c62421857d6)
+triage	Set up job	2026-11-23T15:37:24.8534646Z Complete job name: triage
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	﻿2026-11-23T15:37:24.9471849Z ##[group]Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:24.9473095Z with:
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:24.9473594Z   persist-credentials: false
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:24.9474268Z   repository: tech-organization-mame/test-actions-go
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:24.9479123Z   token: ***
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:24.9479604Z   ssh-strict: true
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:24.9480091Z   ssh-user: git
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:24.9480563Z   clean: true
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:24.9481052Z   sparse-checkout-cone-mode: true
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:24.9481637Z   fetch-depth: 1
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:24.9482111Z   fetch-tags: false
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:24.9482596Z   show-progress: true
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:24.9483110Z   lfs: false
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:24.9483563Z   submodules: false
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:24.9484077Z   set-safe-directory: true
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:24.9484641Z   allow-unsafe-pr-checkout: false
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:24.9485510Z ##[endgroup]
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2222422Z Syncing repository: tech-organization-mame/test-actions-go
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2226141Z ##[group]Getting Git version info
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2228135Z Working directory is '/home/runner/work/test-actions-go/test-actions-go'
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2230749Z [command]/usr/bin/git version
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2232235Z git version 2.56.1
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2251356Z ##[endgroup]
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2266372Z Temporarily overriding HOME='/home/runner/work/_temp/2b580d26-f4b7-4b98-9534-8a5b01f5577d' before making global git config changes
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2270788Z Adding repository directory to the temporary git global config as a safe directory
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2276447Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/test-actions-go/test-actions-go
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2348215Z Deleting the contents of '/home/runner/work/test-actions-go/test-actions-go'
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2352833Z ##[group]Determining repository object format
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2356290Z ##[endgroup]
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2359562Z ##[group]Initializing the repository
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2362860Z [command]/usr/bin/git init /home/runner/work/test-actions-go/test-actions-go
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2485770Z hint: Using 'master' as the name for the initial branch. This default branch name
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2489381Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2492330Z hint: to use in all of your new repositories, which will suppress this warning,
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2495071Z hint: call:
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2496595Z hint:
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2498688Z hint: 	git config --global init.defaultBranch <name>
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2501167Z hint:
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2503524Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2507538Z hint: 'development'. The just-created branch can be renamed via this command:
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2510542Z hint:
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2512204Z hint: 	git branch -m <name>
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2514045Z hint:
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2516459Z hint: Disable this message with "git config set advice.defaultBranchName false"
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2521261Z Initialized empty Git repository in /home/runner/work/test-actions-go/test-actions-go/.git/
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2527473Z [command]/usr/bin/git remote add origin https://github.com/tech-organization-mame/test-actions-go
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2584892Z ##[endgroup]
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2588133Z ##[group]Disabling automatic garbage collection
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2590763Z [command]/usr/bin/git config --local gc.auto 0
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2632761Z ##[endgroup]
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2635740Z ##[group]Setting up auth
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2638010Z Removing SSH command configuration
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2641070Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.2682584Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.3225375Z Removing HTTP extra header
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.3231879Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.3274802Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.3564481Z Removing includeIf entries pointing to credentials config files
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.3569757Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.3606679Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.3900648Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-d4ac5eb4-ddbe-49c9-8b83-baed55627d99.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.3945498Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/test-actions-go/test-actions-go/.git.path /home/runner/work/_temp/git-credentials-d4ac5eb4-ddbe-49c9-8b83-baed55627d99.config
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.3983455Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/test-actions-go/test-actions-go/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-d4ac5eb4-ddbe-49c9-8b83-baed55627d99.config
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.4021871Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-d4ac5eb4-ddbe-49c9-8b83-baed55627d99.config
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.4058361Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-d4ac5eb4-ddbe-49c9-8b83-baed55627d99.config
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.4089109Z ##[endgroup]
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.4090708Z ##[group]Fetching the repository
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.4096627Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +eaa3609ea9f3f07b1ddee1511b71539fd1a40094:refs/remotes/origin/main
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.6310093Z From https://github.com/tech-organization-mame/test-actions-go
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.6314364Z  * [new ref]         eaa3609ea9f3f07b1ddee1511b71539fd1a40094 -> origin/main
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.6320449Z [command]/usr/bin/git branch --list --remote origin/main
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.6351502Z   origin/main
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.6360300Z [command]/usr/bin/git rev-parse refs/remotes/origin/main
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.6387657Z eaa3609ea9f3f07b1ddee1511b71539fd1a40094
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.6393906Z ##[endgroup]
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.6395583Z ##[group]Determining the checkout info
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.6398281Z ##[endgroup]
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.6399591Z [command]/usr/bin/git sparse-checkout disable
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.6463900Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.6502252Z ##[group]Checking out the ref
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.6504139Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.6627972Z Switched to a new branch 'main'
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.6633565Z branch 'main' set up to track 'origin/main'.
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.6641113Z ##[endgroup]
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.6689099Z [command]/usr/bin/git log -1 --format=%H
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.6718200Z eaa3609ea9f3f07b1ddee1511b71539fd1a40094
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.6729752Z ##[group]Removing auth
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.6731870Z Removing SSH command configuration
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.6735028Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.6766785Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.7051537Z Removing HTTP extra header
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.7056065Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.7091308Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.7375098Z Removing includeIf entries pointing to credentials config files
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.7379573Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.7408768Z includeif.gitdir:/home/runner/work/test-actions-go/test-actions-go/.git.path
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.7413115Z includeif.gitdir:/home/runner/work/test-actions-go/test-actions-go/.git/worktrees/*.path
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.7417095Z includeif.gitdir:/github/workspace/.git.path
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.7420153Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.7426703Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/test-actions-go/test-actions-go/.git.path
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.7448789Z /home/runner/work/_temp/git-credentials-d4ac5eb4-ddbe-49c9-8b83-baed55627d99.config
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.7469222Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/test-actions-go/test-actions-go/.git.path \/home\/runner\/work\/_temp\/git\-credentials\-d4ac5eb4\-ddbe\-49c9\-8b83\-baed55627d99\.config
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.7505411Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/test-actions-go/test-actions-go/.git/worktrees/*.path
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.7529997Z /home/runner/work/_temp/git-credentials-d4ac5eb4-ddbe-49c9-8b83-baed55627d99.config
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.7541726Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/test-actions-go/test-actions-go/.git/worktrees/*.path \/home\/runner\/work\/_temp\/git\-credentials\-d4ac5eb4\-ddbe\-49c9\-8b83\-baed55627d99\.config
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.7577677Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.7602871Z /github/runner_temp/git-credentials-d4ac5eb4-ddbe-49c9-8b83-baed55627d99.config
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.7612636Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-d4ac5eb4\-ddbe\-49c9\-8b83\-baed55627d99\.config
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.7646470Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.7670779Z /github/runner_temp/git-credentials-d4ac5eb4-ddbe-49c9-8b83-baed55627d99.config
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.7680186Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-d4ac5eb4\-ddbe\-49c9\-8b83\-baed55627d99\.config
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.7715758Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.7993891Z Removing credentials config '/home/runner/work/_temp/git-credentials-d4ac5eb4-ddbe-49c9-8b83-baed55627d99.config'
+triage	Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:37:25.8004278Z ##[endgroup]
+triage	Gate	﻿2026-11-23T15:37:25.8286556Z ##[group]Run bash scripts/gate.sh
+triage	Gate	2026-11-23T15:37:25.8288108Z ^[[36;1mbash scripts/gate.sh^[[0m
+triage	Gate	2026-11-23T15:37:25.8329465Z shell: /usr/bin/bash -e {0}
+triage	Gate	2026-11-23T15:37:25.8330568Z env:
+triage	Gate	2026-11-23T15:37:25.8340616Z   GH_TOKEN: ***
+triage	Gate	2026-11-23T15:37:25.8341571Z   DEFAULT_BRANCH: main
+triage	Gate	2026-11-23T15:37:25.8342663Z   TRIAGE_DIR: /home/runner/work/_temp/triage
+triage	Gate	2026-11-23T15:37:25.8343914Z ##[endgroup]
+triage	Gate	2026-11-23T15:37:26.7896541Z gate: route=pr state=post_target 
+triage	Analyze and report (AI)	﻿2026-11-23T15:37:26.9962928Z ##[group]Run anthropics/claude-code-action@acfe7992852970efb4fee683d63d628e3e52df67
+triage	Analyze and report (AI)	2026-11-23T15:37:26.9965231Z with:
+triage	Analyze and report (AI)	2026-11-23T15:37:26.9968480Z   claude_code_oauth_token: ***
+triage	Analyze and report (AI)	2026-11-23T15:37:26.9981940Z   github_token: ***
+triage	Analyze and report (AI)	2026-11-23T15:37:26.9984969Z   prompt: GitHub Actionsの失敗した実行（run ID: 45207210096、attempt 1）の原因を調べて、そのPR（mainへのマージ後の実行は、Issue）にコメントしてください。コメントの先頭に <!-- triage:run-45207210096-attempt-1 --> を付け、同じ印がすでにあれば、書かないでください。
+triage	Analyze and report (AI)	
+triage	Analyze and report (AI)	2026-11-23T15:37:26.9988972Z   claude_args: --model claude-sonnet-5-5 --max-turns 15 --allowedTools "Bash(gh *)"
+triage	Analyze and report (AI)	2026-11-23T15:37:26.9991179Z   display_report: false
+triage	Analyze and report (AI)	2026-11-23T15:37:26.9992499Z   show_full_output: false
+triage	Analyze and report (AI)	2026-11-23T15:37:26.9993852Z   trigger_phrase: @claude
+triage	Analyze and report (AI)	2026-11-23T15:37:26.9995203Z   label_trigger: claude
+triage	Analyze and report (AI)	2026-11-23T15:37:26.9996519Z   branch_prefix: claude/
+triage	Analyze and report (AI)	2026-11-23T15:37:26.9997948Z   allow_fork_prs: true
+triage	Analyze and report (AI)	2026-11-23T15:37:26.9999267Z   restrict_untrusted_prs: true
+triage	Analyze and report (AI)	2026-11-23T15:37:27.0000682Z   use_bedrock: false
+triage	Analyze and report (AI)	2026-11-23T15:37:27.0001967Z   use_vertex: false
+triage	Analyze and report (AI)	2026-11-23T15:37:27.0003274Z   use_foundry: false
+triage	Analyze and report (AI)	2026-11-23T15:37:27.0004555Z   use_sticky_comment: false
+triage	Analyze and report (AI)	2026-11-23T15:37:27.0005991Z   classify_inline_comments: true
+triage	Analyze and report (AI)	2026-11-23T15:37:27.0007552Z   use_commit_signing: false
+triage	Analyze and report (AI)	2026-11-23T15:37:27.0008917Z   bot_id: 41898282
+triage	Analyze and report (AI)	2026-11-23T15:37:27.0010145Z   bot_name: claude[bot]
+triage	Analyze and report (AI)	2026-11-23T15:37:27.0011460Z   track_progress: false
+triage	Analyze and report (AI)	2026-11-23T15:37:27.0012780Z   include_fix_links: true
+triage	Analyze and report (AI)	2026-11-23T15:37:27.0014099Z env:
+triage	Analyze and report (AI)	2026-11-23T15:37:27.0027178Z   GH_TOKEN: ***
+triage	Analyze and report (AI)	2026-11-23T15:37:27.0028858Z ##[endgroup]
+triage	Analyze and report (AI)	2026-11-23T15:37:27.0123553Z ##[start-action display=Install Bun;id=__anthropics_claude-code-action.setup-bun]
+triage	Analyze and report (AI)	2026-11-23T15:37:27.0297728Z ##[group]Run oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
+triage	Analyze and report (AI)	2026-11-23T15:37:27.0299707Z with:
+triage	Analyze and report (AI)	2026-11-23T15:37:27.0300842Z   bun-version: 1.4.4
+triage	Analyze and report (AI)	2026-11-23T15:37:27.0314135Z   token: ***
+triage	Analyze and report (AI)	2026-11-23T15:37:27.0315350Z   no-cache: true
+triage	Analyze and report (AI)	2026-11-23T15:37:27.0316548Z env:
+triage	Analyze and report (AI)	2026-11-23T15:37:27.0329289Z   GH_TOKEN: ***
+triage	Analyze and report (AI)	2026-11-23T15:37:27.0330528Z ##[endgroup]
+triage	Analyze and report (AI)	2026-11-23T15:37:27.2139402Z Downloading a new version of Bun: https://github.com/oven-sh/bun/releases/download/bun-v1.4.4/bun-linux-x64.zip
+triage	Analyze and report (AI)	2026-11-23T15:37:27.5873846Z [command]/usr/bin/unzip -o -q /home/runner/work/_temp/b40cf239-8800-4245-b06f-dc11f3fbd296.zip
+triage	Analyze and report (AI)	2026-11-23T15:37:28.4505939Z [command]/home/runner/.bun/bin/bun --revision
+triage	Analyze and report (AI)	2026-11-23T15:37:28.4557128Z 1.4.4+38afee6c8
+triage	Analyze and report (AI)	2026-11-23T15:37:28.4691693Z ##[end-action id=__anthropics_claude-code-action.setup-bun;outcome=success;conclusion=success;duration_ms=1456]
+triage	Analyze and report (AI)	2026-11-23T15:37:28.4696266Z ##[start-action display=Setup Custom Bun Path;id=__anthropics_claude-code-action.__run]
+triage	Analyze and report (AI)	2026-11-23T15:37:28.4705913Z ##[end-action id=__anthropics_claude-code-action.__run;outcome=skipped;conclusion=skipped;duration_ms=0]
+triage	Analyze and report (AI)	2026-11-23T15:37:28.4708676Z ##[start-action display=Install Dependencies;id=__anthropics_claude-code-action.__run_2]
+triage	Analyze and report (AI)	2026-11-23T15:37:28.4729624Z ##[group]Run cd ${GITHUB_ACTION_PATH}
+triage	Analyze and report (AI)	2026-11-23T15:37:28.4730004Z ^[[36;1mcd ${GITHUB_ACTION_PATH}^[[0m
+triage	Analyze and report (AI)	2026-11-23T15:37:28.4730306Z ^[[36;1mbun install --production^[[0m
+triage	Analyze and report (AI)	2026-11-23T15:37:28.4766651Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+triage	Analyze and report (AI)	2026-11-23T15:37:28.4767007Z env:
+triage	Analyze and report (AI)	2026-11-23T15:37:28.4769837Z   GH_TOKEN: ***
+triage	Analyze and report (AI)	2026-11-23T15:37:28.4770067Z ##[endgroup]
+triage	Analyze and report (AI)	2026-11-23T15:37:28.4855406Z bun install v1.4.4 (38afee6c8)
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1758635Z 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1759587Z + @actions/core@1.11.1
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1760566Z + @actions/github@6.0.1
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1761196Z + @anthropic-ai/claude-agent-sdk@0.3.330
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1761896Z + @modelcontextprotocol/sdk@1.16.0
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1762365Z + @octokit/graphql@8.2.2
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1762753Z + @octokit/rest@21.1.1
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1763138Z + @octokit/webhooks-types@7.6.1
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1763559Z + node-fetch@3.3.2
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1763907Z + shell-quote@1.8.4
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1764247Z + zod@3.25.76
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1764442Z 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1764673Z 139 packages installed [1.69s]
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1883718Z ##[end-action id=__anthropics_claude-code-action.__run_2;outcome=success;conclusion=success;duration_ms=1717]
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1887223Z ##[start-action display=Install subprocess isolation dependencies;id=__anthropics_claude-code-action.__run_3]
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1896477Z ##[end-action id=__anthropics_claude-code-action.__run_3;outcome=skipped;conclusion=skipped;duration_ms=0]
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1902039Z ##[start-action display=Pin bun binary for post-steps;id=__anthropics_claude-code-action.__run_4]
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1906522Z ##[end-action id=__anthropics_claude-code-action.__run_4;outcome=skipped;conclusion=skipped;duration_ms=0]
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1909093Z ##[start-action display=Prepend system bin dirs to PATH;id=__anthropics_claude-code-action.__run_5]
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1913149Z ##[end-action id=__anthropics_claude-code-action.__run_5;outcome=skipped;conclusion=skipped;duration_ms=0]
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1958427Z ##[start-action display=Run Claude Code Action;id=__anthropics_claude-code-action.run]
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1977076Z ##[group]Run # Keep these options wherever the action runs its own scripts, so that Bun
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1978050Z ^[[36;1m# Keep these options wherever the action runs its own scripts, so that Bun^[[0m
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1978603Z ^[[36;1m# takes its settings from the action's directory. Bun before 1.4.3 logs^[[0m
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1979131Z ^[[36;1m# "directory mismatch" for --tsconfig-override (oven-sh/bun#25730).^[[0m
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1979517Z ^[[36;1m#^[[0m
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1979838Z ^[[36;1m# Bash reads this script as it runs. The braces and exit make it read the^[[0m
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1980352Z ^[[36;1m# rest first and stop there. With exec instead, cancelling the run would^[[0m
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1980799Z ^[[36;1m# interrupt Bun at once, before it can clean up.^[[0m
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1981113Z ^[[36;1m{^[[0m
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1981315Z ^[[36;1m  bun --no-env-file \^[[0m
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1981633Z ^[[36;1m    --config="${GITHUB_ACTION_PATH}/bunfig.toml" \^[[0m
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1982065Z ^[[36;1m    --tsconfig-override="${GITHUB_ACTION_PATH}/tsconfig.json" \^[[0m
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1982673Z ^[[36;1m    run ${GITHUB_ACTION_PATH}/src/entrypoints/run.ts^[[0m
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1983000Z ^[[36;1m  exit^[[0m
+triage	Analyze and report (AI)	2026-11-23T15:37:30.1983196Z ^[[36;1m}^[[0m
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2015463Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2015822Z env:
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2018732Z   GH_TOKEN: ***
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2018996Z   BUN_RUNTIME_TRANSPILER_CACHE_PATH: 0
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2019270Z   MODE: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2019977Z   PROMPT: GitHub Actionsの失敗した実行（run ID: 45207210096、attempt 1）の原因を調べて、そのPR（mainへのマージ後の実行は、Issue）にコメントしてください。コメントの先頭に <!-- triage:run-45207210096-attempt-1 --> を付け、同じ印がすでにあれば、書かないでください。
+triage	Analyze and report (AI)	
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2020713Z   TRIGGER_PHRASE: @claude
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2020951Z   ASSIGNEE_TRIGGER: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2021170Z   LABEL_TRIGGER: claude
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2021383Z   BASE_BRANCH: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2021604Z   BRANCH_PREFIX: claude/
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2021829Z   BRANCH_NAME_TEMPLATE: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2024406Z   OVERRIDE_GITHUB_TOKEN: ***
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2024651Z   ALLOWED_BOTS: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2024860Z   ALLOWED_NON_WRITE_USERS: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2025092Z   ALLOW_FORK_PRS: true
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2025319Z   RESTRICT_UNTRUSTED_PRS: true
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2025570Z   CLAUDE_CODE_SUBPROCESS_ENV_SCRUB: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2025843Z   CLAUDE_CODE_SCRIPT_CAPS: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2026078Z   INCLUDE_COMMENTS_BY_ACTOR: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2026324Z   EXCLUDE_COMMENTS_BY_ACTOR: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2026566Z   GITHUB_RUN_ID: 45207281336
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2026801Z   USE_STICKY_COMMENT: false
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2043478Z   CLASSIFY_INLINE_COMMENTS: true
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2046569Z   DEFAULT_WORKFLOW_TOKEN: ***
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2046869Z   USE_COMMIT_SIGNING: false
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2047120Z   SSH_SIGNING_KEY: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2047555Z   BOT_ID: 41898282
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2048045Z   BOT_NAME: claude[bot]
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2048282Z   TRACK_PROGRESS: false
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2048520Z   INCLUDE_FIX_LINKS: true
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2048802Z   ADDITIONAL_PERMISSIONS: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2049241Z   CLAUDE_ARGS: --model claude-sonnet-5-5 --max-turns 15 --allowedTools "Bash(gh *)"
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2056589Z   ALL_INPUTS: {
+triage	Analyze and report (AI)	  "claude_code_oauth_token": "***",
+triage	Analyze and report (AI)	  "github_token": "***",
+triage	Analyze and report (AI)	  "prompt": "GitHub Actionsの失敗した実行（run ID: 45207210096、attempt 1）の原因を調べて、そのPR（mainへのマージ後の実行は、Issue）にコメントしてください。コメントの先頭に <!-- triage:run-45207210096-attempt-1 --> を付け、同じ印がすでにあれば、書かないでください。\n",
+triage	Analyze and report (AI)	  "claude_args": "--model claude-sonnet-5-5 --max-turns 15 --allowedTools \"Bash(gh *)\"",
+triage	Analyze and report (AI)	  "display_report": "false",
+triage	Analyze and report (AI)	  "show_full_output": "false",
+triage	Analyze and report (AI)	  "trigger_phrase": "@claude",
+triage	Analyze and report (AI)	  "assignee_trigger": "",
+triage	Analyze and report (AI)	  "label_trigger": "claude",
+triage	Analyze and report (AI)	  "base_branch": "",
+triage	Analyze and report (AI)	  "branch_prefix": "claude/",
+triage	Analyze and report (AI)	  "branch_name_template": "",
+triage	Analyze and report (AI)	  "allowed_bots": "",
+triage	Analyze and report (AI)	  "allowed_non_write_users": "",
+triage	Analyze and report (AI)	  "allow_fork_prs": "true",
+triage	Analyze and report (AI)	  "restrict_untrusted_prs": "true",
+triage	Analyze and report (AI)	  "include_comments_by_actor": "",
+triage	Analyze and report (AI)	  "exclude_comments_by_actor": "",
+triage	Analyze and report (AI)	  "settings": "",
+triage	Analyze and report (AI)	  "anthropic_api_key": "",
+triage	Analyze and report (AI)	  "anthropic_federation_rule_id": "",
+triage	Analyze and report (AI)	  "anthropic_organization_id": "",
+triage	Analyze and report (AI)	  "anthropic_service_account_id": "",
+triage	Analyze and report (AI)	  "anthropic_workspace_id": "",
+triage	Analyze and report (AI)	  "anthropic_oidc_audience": "",
+triage	Analyze and report (AI)	  "use_bedrock": "false",
+triage	Analyze and report (AI)	  "use_vertex": "false",
+triage	Analyze and report (AI)	  "use_foundry": "false",
+triage	Analyze and report (AI)	  "additional_permissions": "",
+triage	Analyze and report (AI)	  "use_sticky_comment": "false",
+triage	Analyze and report (AI)	  "classify_inline_comments": "true",
+triage	Analyze and report (AI)	  "use_commit_signing": "false",
+triage	Analyze and report (AI)	  "ssh_signing_key": "",
+triage	Analyze and report (AI)	  "bot_id": "41898282",
+triage	Analyze and report (AI)	  "bot_name": "claude[bot]",
+triage	Analyze and report (AI)	  "track_progress": "false",
+triage	Analyze and report (AI)	  "include_fix_links": "true",
+triage	Analyze and report (AI)	  "path_to_claude_code_executable": "",
+triage	Analyze and report (AI)	  "path_to_bun_executable": "",
+triage	Analyze and report (AI)	  "plugins": "",
+triage	Analyze and report (AI)	  "plugin_marketplaces": ""
+triage	Analyze and report (AI)	}
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2061547Z   INPUT_PROMPT_FILE: /home/runner/work/_temp/claude-prompts/claude-prompt.txt
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2061968Z   INPUT_SETTINGS: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2062607Z   INPUT_EXPERIMENTAL_SLASH_COMMANDS_DIR: /home/runner/work/_actions/anthropics/claude-code-action/acfe7992852970efb4fee683d63d628e3e52df67/slash-commands
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2063485Z   INPUT_PATH_TO_CLAUDE_CODE_EXECUTABLE: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2063794Z   INPUT_PATH_TO_BUN_EXECUTABLE: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2064073Z   INPUT_SHOW_FULL_OUTPUT: false
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2064340Z   DISPLAY_REPORT: false
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2064578Z   INPUT_PLUGINS: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2064815Z   INPUT_PLUGIN_MARKETPLACES: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2065085Z   PATH_TO_CLAUDE_CODE_EXECUTABLE: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2065351Z   NODE_VERSION: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2065575Z   ANTHROPIC_API_KEY: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2066328Z   CLAUDE_CODE_OAUTH_TOKEN: ***
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2066607Z   ANTHROPIC_FEDERATION_RULE_ID: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2066886Z   ANTHROPIC_ORGANIZATION_ID: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2067151Z   ANTHROPIC_SERVICE_ACCOUNT_ID: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2067605Z   ANTHROPIC_WORKSPACE_ID: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2067866Z   ANTHROPIC_OIDC_AUDIENCE: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2068112Z   ANTHROPIC_BASE_URL: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2068362Z   ANTHROPIC_CUSTOM_HEADERS: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2068619Z   CLAUDE_CODE_USE_BEDROCK: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2068871Z   CLAUDE_CODE_USE_VERTEX: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2069113Z   CLAUDE_CODE_USE_FOUNDRY: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2069347Z   AWS_REGION: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2069559Z   AWS_ACCESS_KEY_ID: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2069792Z   AWS_SECRET_ACCESS_KEY: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2070035Z   AWS_SESSION_TOKEN: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2070269Z   AWS_BEARER_TOKEN_BEDROCK: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2070528Z   ANTHROPIC_BEDROCK_BASE_URL: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2070788Z   ANTHROPIC_VERTEX_PROJECT_ID: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2071043Z   CLOUD_ML_REGION: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2071277Z   GOOGLE_APPLICATION_CREDENTIALS: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2071558Z   ANTHROPIC_VERTEX_BASE_URL: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2071822Z   VERTEX_REGION_CLAUDE_3_5_HAIKU: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2072094Z   VERTEX_REGION_CLAUDE_3_5_SONNET: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2072370Z   VERTEX_REGION_CLAUDE_3_7_SONNET: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2072643Z   ANTHROPIC_FOUNDRY_RESOURCE: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2073045Z   ANTHROPIC_FOUNDRY_BASE_URL: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2073310Z   ANTHROPIC_DEFAULT_SONNET_MODEL: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2073598Z   ANTHROPIC_DEFAULT_HAIKU_MODEL: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2073873Z   ANTHROPIC_DEFAULT_OPUS_MODEL: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2074129Z   MCP_TIMEOUT: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2074348Z   MCP_TOOL_TIMEOUT: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2074581Z   MAX_MCP_OUTPUT_TOKENS: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2074830Z   CLAUDE_CODE_ENABLE_TELEMETRY: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2075097Z   OTEL_METRICS_EXPORTER: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2075329Z   OTEL_LOGS_EXPORTER: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2075567Z   OTEL_EXPORTER_OTLP_PROTOCOL: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2075832Z   OTEL_EXPORTER_OTLP_ENDPOINT: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2076090Z   OTEL_EXPORTER_OTLP_HEADERS: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2076344Z   OTEL_METRIC_EXPORT_INTERVAL: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2076610Z   OTEL_LOGS_EXPORT_INTERVAL: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2076867Z   OTEL_RESOURCE_ATTRIBUTES: 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.2077116Z ##[endgroup]
+triage	Analyze and report (AI)	2026-11-23T15:37:30.4885603Z Auto-detected mode: agent for event: workflow_run
+triage	Analyze and report (AI)	2026-11-23T15:37:30.4886543Z Using provided GITHUB_TOKEN for authentication
+triage	Analyze and report (AI)	2026-11-23T15:37:30.4900286Z Checking permissions for actor: Death-True2
+triage	Analyze and report (AI)	2026-11-23T15:37:30.7509218Z Permission level retrieved: admin
+triage	Analyze and report (AI)	2026-11-23T15:37:30.7509861Z Actor has write access: admin
+triage	Analyze and report (AI)	2026-11-23T15:37:30.7510287Z Mode: agent
+triage	Analyze and report (AI)	2026-11-23T15:37:30.7511772Z Context prompt: GitHub Actionsの失敗した実行（run ID: 45207210096、attempt 1）の原因を調べて、そのPR（mainへのマージ後の実行は、Issue）にコメントしてください。コメントの先頭に <!-- triage:run-45207210096-attempt-1 --> を付け、同じ印がすでにあれば、書かないでください。
+triage	Analyze and report (AI)	2026-11-23T15:37:30.7512618Z 
+triage	Analyze and report (AI)	2026-11-23T15:37:30.7512729Z Trigger result: true
+triage	Analyze and report (AI)	2026-11-23T15:37:30.7569556Z Preparing with mode: agent for event: workflow_run
+triage	Analyze and report (AI)	2026-11-23T15:37:30.9550871Z Actor type: User
+triage	Analyze and report (AI)	2026-11-23T15:37:30.9551761Z Verified human actor: Death-True2
+triage	Analyze and report (AI)	2026-11-23T15:37:30.9552623Z Configuring git authentication for non-signing mode
+triage	Analyze and report (AI)	2026-11-23T15:37:30.9553391Z Configuring git user...
+triage	Analyze and report (AI)	2026-11-23T15:37:30.9554075Z Setting git user as claude[bot]...
+triage	Analyze and report (AI)	2026-11-23T15:37:30.9606642Z ✓ Set git user as claude[bot]
+triage	Analyze and report (AI)	2026-11-23T15:37:30.9612013Z Removing existing git authentication headers...
+triage	Analyze and report (AI)	2026-11-23T15:37:30.9646834Z No existing authentication headers to remove
+triage	Analyze and report (AI)	2026-11-23T15:37:30.9647619Z Updating remote URL with authentication...
+triage	Analyze and report (AI)	2026-11-23T15:37:30.9666531Z ✓ Updated remote URL with authentication token
+triage	Analyze and report (AI)	2026-11-23T15:37:30.9666900Z Git authentication configured successfully
+triage	Analyze and report (AI)	2026-11-23T15:37:30.9689325Z Installing Claude Code v2.1.330...
+triage	Analyze and report (AI)	2026-11-23T15:37:30.9689867Z Installation attempt 1...
+triage	Analyze and report (AI)	2026-11-23T15:37:32.6126348Z Setting up Claude Code...
+triage	Analyze and report (AI)	2026-11-23T15:37:33.0020934Z 
+triage	Analyze and report (AI)	2026-11-23T15:37:33.0157756Z Checking installation…
+triage	Analyze and report (AI)	2026-11-23T15:37:34.9781625Z Installing Claude Code native build 2.1.330…
+triage	Analyze and report (AI)	2026-11-23T15:37:36.6306984Z Setting up launcher and shell integration…
+triage	Analyze and report (AI)	2026-11-23T15:37:36.6307899Z ✔ Claude Code successfully installed!
+triage	Analyze and report (AI)	2026-11-23T15:37:36.6308239Z 
+triage	Analyze and report (AI)	2026-11-23T15:37:36.6308376Z   Version: 2.1.330
+triage	Analyze and report (AI)	2026-11-23T15:37:36.6308594Z 
+triage	Analyze and report (AI)	2026-11-23T15:37:36.6308798Z   Location: ~/.local/bin/claude
+triage	Analyze and report (AI)	2026-11-23T15:37:36.6309068Z 
+triage	Analyze and report (AI)	2026-11-23T15:37:36.6309074Z 
+triage	Analyze and report (AI)	2026-11-23T15:37:36.6324317Z   Next: Run claude --help to get started
+triage	Analyze and report (AI)	2026-11-23T15:37:36.9157495Z 
+triage	Analyze and report (AI)	2026-11-23T15:37:36.9158254Z ✅ Installation complete!
+triage	Analyze and report (AI)	2026-11-23T15:37:36.9158481Z 
+triage	Analyze and report (AI)	2026-11-23T15:37:36.9169269Z Claude Code installed successfully
+triage	Analyze and report (AI)	2026-11-23T15:37:36.9179041Z Setting up Claude settings at: /home/runner/.claude/settings.json
+triage	Analyze and report (AI)	2026-11-23T15:37:36.9179517Z Creating .claude directory...
+triage	Analyze and report (AI)	2026-11-23T15:37:36.9214611Z No existing settings file found, creating new one
+triage	Analyze and report (AI)	2026-11-23T15:37:36.9215092Z Updated settings with enableAllProjectMcpServers: true
+triage	Analyze and report (AI)	2026-11-23T15:37:36.9216692Z Settings saved successfully
+triage	Analyze and report (AI)	2026-11-23T15:37:36.9220053Z No marketplaces specified, skipping marketplace setup
+triage	Analyze and report (AI)	2026-11-23T15:37:36.9220760Z No plugins specified, skipping plugins installation
+triage	Analyze and report (AI)	2026-11-23T15:37:36.9362896Z Running Claude Code via SDK (full output hidden for security)...
+triage	Analyze and report (AI)	2026-11-23T15:37:36.9363864Z Rerun in debug mode or enable `show_full_output: true` in your workflow file for full output.
+triage	Analyze and report (AI)	2026-11-23T15:37:36.9365287Z Running Claude with prompt from file: /home/runner/work/_temp/claude-prompts/claude-prompt.txt
+triage	Analyze and report (AI)	2026-11-23T15:37:36.9366104Z SDK options: {
+triage	Analyze and report (AI)	2026-11-23T15:37:36.9366471Z   "model": "claude-sonnet-5-5",
+triage	Analyze and report (AI)	2026-11-23T15:37:36.9366894Z   "maxTurns": 15,
+triage	Analyze and report (AI)	2026-11-23T15:37:36.9367243Z   "allowedTools": [
+triage	Analyze and report (AI)	2026-11-23T15:37:36.9367824Z     "Bash(gh *)"
+triage	Analyze and report (AI)	2026-11-23T15:37:36.9368145Z   ],
+triage	Analyze and report (AI)	2026-11-23T15:37:36.9368447Z   "systemPrompt": {
+triage	Analyze and report (AI)	2026-11-23T15:37:36.9368806Z     "type": "preset",
+triage	Analyze and report (AI)	2026-11-23T15:37:36.9369178Z     "preset": "claude_code"
+triage	Analyze and report (AI)	2026-11-23T15:37:36.9369577Z   },
+triage	Analyze and report (AI)	2026-11-23T15:37:36.9370058Z   "pathToClaudeCodeExecutable": "/home/runner/.local/bin/claude",
+triage	Analyze and report (AI)	2026-11-23T15:37:36.9370696Z   "settingSources": [
+triage	Analyze and report (AI)	2026-11-23T15:37:36.9371056Z     "user",
+triage	Analyze and report (AI)	2026-11-23T15:37:36.9371383Z     "project",
+triage	Analyze and report (AI)	2026-11-23T15:37:36.9371713Z     "local"
+triage	Analyze and report (AI)	2026-11-23T15:37:36.9372013Z   ]
+triage	Analyze and report (AI)	2026-11-23T15:37:36.9372298Z }
+triage	Analyze and report (AI)	2026-11-23T15:37:37.4823345Z {
+triage	Analyze and report (AI)	2026-11-23T15:37:37.4824052Z   "type": "system",
+triage	Analyze and report (AI)	2026-11-23T15:37:37.4824544Z   "subtype": "init",
+triage	Analyze and report (AI)	2026-11-23T15:37:37.4825094Z   "message": "Claude Code initialized",
+triage	Analyze and report (AI)	2026-11-23T15:37:37.4825697Z   "model": "claude-sonnet-5-5"
+triage	Analyze and report (AI)	2026-11-23T15:37:37.4826175Z }
+triage	Analyze and report (AI)	2026-11-23T15:38:03.8577069Z {
+triage	Analyze and report (AI)	2026-11-23T15:38:03.8578695Z   "type": "result",
+triage	Analyze and report (AI)	2026-11-23T15:38:03.8583074Z   "subtype": "success",
+triage	Analyze and report (AI)	2026-11-23T15:38:03.8583609Z   "is_error": false,
+triage	Analyze and report (AI)	2026-11-23T15:38:03.8584103Z   "duration_ms": 26512,
+triage	Analyze and report (AI)	2026-11-23T15:38:03.8584617Z   "num_turns": 6,
+triage	Analyze and report (AI)	2026-11-23T15:38:03.8585102Z   "total_cost_usd": 0.0788245,
+triage	Analyze and report (AI)	2026-11-23T15:38:03.8585630Z   "permission_denials_count": 0,
+triage	Analyze and report (AI)	2026-11-23T15:38:03.8586197Z   "modelUsage": {
+triage	Analyze and report (AI)	2026-11-23T15:38:03.8586757Z     "claude-haiku-5-5": {
+triage	Analyze and report (AI)	2026-11-23T15:38:03.8587644Z       "contextWindow": 1000000,
+triage	Analyze and report (AI)	2026-11-23T15:38:03.8588483Z       "maxOutputTokens": 128000
+triage	Analyze and report (AI)	2026-11-23T15:38:03.8589211Z     },
+triage	Analyze and report (AI)	2026-11-23T15:38:03.8589827Z     "claude-sonnet-5-5": {
+triage	Analyze and report (AI)	2026-11-23T15:38:03.8590540Z       "contextWindow": 1000000,
+triage	Analyze and report (AI)	2026-11-23T15:38:03.8591266Z       "maxOutputTokens": 128000
+triage	Analyze and report (AI)	2026-11-23T15:38:03.8592376Z     }
+triage	Analyze and report (AI)	2026-11-23T15:38:03.8592885Z   }
+triage	Analyze and report (AI)	2026-11-23T15:38:03.8593362Z }
+triage	Analyze and report (AI)	2026-11-23T15:38:04.0674577Z Log saved to /home/runner/work/_temp/claude-execution-output.json
+triage	Analyze and report (AI)	2026-11-23T15:38:04.0675424Z Set session_id: 5860f75e-6b8a-429c-b4dd-a3bfeae542b8
+triage	Analyze and report (AI)	2026-11-23T15:38:04.0785189Z ##[end-action id=__anthropics_claude-code-action.run;outcome=success;conclusion=success;duration_ms=33882]
+triage	Analyze and report (AI)	2026-11-23T15:38:04.0789016Z ##[start-action display=Re-prepend system bin dirs to PATH;id=__anthropics_claude-code-action.__run_6]
+triage	Analyze and report (AI)	2026-11-23T15:38:04.0795885Z ##[end-action id=__anthropics_claude-code-action.__run_6;outcome=skipped;conclusion=skipped;duration_ms=0]
+triage	Analyze and report (AI)	2026-11-23T15:38:04.0798877Z ##[start-action display=Cleanup SSH signing key;id=__anthropics_claude-code-action.__run_7]
+triage	Analyze and report (AI)	2026-11-23T15:38:04.0802582Z ##[end-action id=__anthropics_claude-code-action.__run_7;outcome=skipped;conclusion=skipped;duration_ms=0]
+triage	Analyze and report (AI)	2026-11-23T15:38:04.0806153Z ##[start-action display=Post buffered inline comments;id=__anthropics_claude-code-action.__run_8]
+triage	Analyze and report (AI)	2026-11-23T15:38:04.0826286Z ##[group]Run BUN_BIN="${GITHUB_ACTION_PATH}/bin/bun"
+triage	Analyze and report (AI)	2026-11-23T15:38:04.0826684Z ^[[36;1mBUN_BIN="${GITHUB_ACTION_PATH}/bin/bun"^[[0m
+triage	Analyze and report (AI)	2026-11-23T15:38:04.0827003Z ^[[36;1m[ -x "$BUN_BIN" ] || BUN_BIN="bun"^[[0m
+triage	Analyze and report (AI)	2026-11-23T15:38:04.0827560Z ^[[36;1m"$BUN_BIN" --no-env-file \^[[0m
+triage	Analyze and report (AI)	2026-11-23T15:38:04.0827910Z ^[[36;1m  --config="${GITHUB_ACTION_PATH}/bunfig.toml" \^[[0m
+triage	Analyze and report (AI)	2026-11-23T15:38:04.0828337Z ^[[36;1m  --tsconfig-override="${GITHUB_ACTION_PATH}/tsconfig.json" \^[[0m
+triage	Analyze and report (AI)	2026-11-23T15:38:04.0828854Z ^[[36;1m  run ${GITHUB_ACTION_PATH}/src/entrypoints/post-buffered-inline-comments.ts^[[0m
+triage	Analyze and report (AI)	2026-11-23T15:38:04.0862583Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+triage	Analyze and report (AI)	2026-11-23T15:38:04.0862930Z env:
+triage	Analyze and report (AI)	2026-11-23T15:38:04.0865585Z   GH_TOKEN: ***
+triage	Analyze and report (AI)	2026-11-23T15:38:04.0865829Z   BUN_RUNTIME_TRANSPILER_CACHE_PATH: 0
+triage	Analyze and report (AI)	2026-11-23T15:38:04.0868947Z   GITHUB_TOKEN: ***
+triage	Analyze and report (AI)	2026-11-23T15:38:04.0869199Z   REPO_OWNER: tech-organization-mame
+triage	Analyze and report (AI)	2026-11-23T15:38:04.0869481Z   REPO_NAME: test-actions-go
+triage	Analyze and report (AI)	2026-11-23T15:38:04.0869726Z   PR_NUMBER: 
+triage	Analyze and report (AI)	2026-11-23T15:38:04.0869927Z   ANTHROPIC_API_KEY: 
+triage	Analyze and report (AI)	2026-11-23T15:38:04.0870139Z ##[endgroup]
+triage	Analyze and report (AI)	2026-11-23T15:38:04.1120469Z No buffered inline comments
+triage	Analyze and report (AI)	2026-11-23T15:38:04.1147882Z ##[end-action id=__anthropics_claude-code-action.__run_8;outcome=success;conclusion=success;duration_ms=34]
+triage	Analyze and report (AI)	2026-11-23T15:38:04.1152849Z ##[start-action display=Revoke app token;id=__anthropics_claude-code-action.__run_9]
+triage	Analyze and report (AI)	2026-11-23T15:38:04.1166587Z ##[end-action id=__anthropics_claude-code-action.__run_9;outcome=skipped;conclusion=skipped;duration_ms=0]
+triage	Post Analyze and report (AI)	﻿2026-11-23T15:38:04.1611534Z Post job cleanup.
+triage	Post Analyze and report (AI)	2026-11-23T15:38:04.1615330Z ##[start-action display=Install Bun;id=__0578cd8a-b393-468c-98fb-fabeaaa43bb9.setup-bun]
+triage	Post Analyze and report (AI)	2026-11-23T15:38:04.1650865Z Post job cleanup.
+triage	Post Analyze and report (AI)	2026-11-23T15:38:04.3463271Z ##[end-action id=__0578cd8a-b393-468c-98fb-fabeaaa43bb9.setup-bun;outcome=success;conclusion=success;duration_ms=184]
+triage	Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	﻿2026-11-23T15:38:04.3558877Z Post job cleanup.
+triage	Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:38:04.4450061Z [command]/usr/bin/git version
+triage	Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:38:04.4507257Z git version 2.56.1
+triage	Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:38:04.4568369Z Temporarily overriding HOME='/home/runner/work/_temp/56277e85-300f-4ebe-bad0-4b2d7f1a68ae' before making global git config changes
+triage	Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:38:04.4569662Z Adding repository directory to the temporary git global config as a safe directory
+triage	Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:38:04.4570742Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/test-actions-go/test-actions-go
+triage	Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:38:04.4613500Z Removing SSH command configuration
+triage	Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:38:04.4621927Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+triage	Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:38:04.4686606Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+triage	Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:38:04.5035223Z Removing HTTP extra header
+triage	Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:38:04.5036364Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+triage	Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:38:04.5091716Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+triage	Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:38:04.5423895Z Removing includeIf entries pointing to credentials config files
+triage	Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:38:04.5431763Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+triage	Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	2026-11-23T15:38:04.5475688Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+triage	Complete job	﻿2026-11-23T15:38:04.5930549Z Cleaning up orphan processes
