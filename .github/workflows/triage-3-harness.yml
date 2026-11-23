@@ -1,0 +1,54 @@
+# 構成③：入口の判定 → 準備 → AI → 投稿。T5のスパイク版：AIの代わりに、固定のJSONを書く。
+# 3構成は、リポジトリの変数 TRIAGE_ARM で、1つだけ有効にする（gh variable set TRIAGE_ARM --body 3）。
+name: Triage 3 (harness)
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: triage-3-${{ github.event.workflow_run.id }}-${{ github.event.workflow_run.run_attempt }}
+  cancel-in-progress: false
+
+jobs:
+  triage:
+    if: >-
+      ${{ vars.TRIAGE_ARM == '3'
+      && github.event.workflow_run.conclusion == 'failure'
+      && github.event.workflow_run.head_repository.full_name == github.repository }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+      CONTROL_SHA: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Gate
+        id: gate
+        run: bash scripts/gate.sh
+
+      - name: Prepare
+        if: steps.gate.outputs.state == 'post_target'
+        run: bash scripts/prepare.sh
+
+      # スパイク：AIの代わりに、固定のJSON
+      - name: Fixed result (no AI)
+        if: steps.gate.outputs.state == 'post_target'
+        run: |
+          mkdir -p triage
+          printf '%s' '{"category":"test_failure","summary":"T5の動作確認：固定のJSONによる投稿（AIは使っていない）","suspected_cause":"スクリプトの投稿経路の確認用。原因の分析ではない","evidence":["L1","L2"],"next_steps":["この投稿は、検証用。無視してよい"]}' > triage/result.json
+
+      - name: Post
+        if: steps.gate.outputs.state == 'post_target'
+        run: bash scripts/post.sh
