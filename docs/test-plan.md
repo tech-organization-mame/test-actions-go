@@ -49,7 +49,7 @@
 調査役（Claude）が読めないように、リポジトリには置かない（`docs/decisions.md`のD-09）。
 
 - 本文：ローカルの`private/answer-key.md`（`.gitignore`済み）。75試行の完了後に、コミットする
-- 試行の前に記録するSHA-256：`37ff9e54a5eddee927c36db322aee67cd1bf23ccd339d44d98f3e0e08463f866（2026-11-23に、C1を難しい版に差し替えて、更新。旧：cc481f17…）`
+- 試行の前に記録するSHA-256：`f11b007eee8515cae8079864b0e7cb108b03c8cabcd9983aafea439988d4c406（2026-11-23に、C1を難しい版に差し替えて、更新。旧：cc481f17…）`
 - 完了後に、`sha256sum private/answer-key.md`と照合して、変更していないことを示す
 - 採点担当だけに、渡す
 - 正解表を変えるときは、ハッシュを更新して、理由を`docs/decisions.md`に書く
