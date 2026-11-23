@@ -1,0 +1,7 @@
+{
+  "category": "network_error",
+  "summary": "モジュールのダウンロードで、接続のタイムアウトを観測",
+  "suspected_cause": "ネットワークのタイムアウトを観測した。一時的かどうかは、不明",
+  "evidence": ["L18"],
+  "next_steps": ["ジョブを再実行"]
+}

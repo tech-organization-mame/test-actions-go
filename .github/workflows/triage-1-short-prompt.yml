@@ -1,0 +1,56 @@
+# 構成①：短い指示＋ツール許可。何も設定しない。
+# ログの取得から投稿まで、AIに任せる。
+# 注意：未検証のたたき台。GitHubへのpush前に、内容を確認すること。
+#
+# 3つの構成（triage-1、triage-2、triage-3）は、リポジトリの変数 TRIAGE_ARM で、1つだけ有効にする。
+#   例：gh variable set TRIAGE_ARM --body 1
+name: Triage 1 (short prompt)
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+
+# 3構成で、同じ権限にそろえる（比較の条件）。
+permissions:
+  actions: read
+  contents: read
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: triage-1-${{ github.event.workflow_run.id }}-${{ github.event.workflow_run.run_attempt }}
+  cancel-in-progress: false
+
+jobs:
+  triage:
+    # 入口の制約（3構成で同じ。比較の対象外）：
+    #   失敗した実行だけ。同じリポジトリの実行だけ（forkは除外）。有効な構成だけ。
+    if: >-
+      ${{ vars.TRIAGE_ARM == '1'
+      && github.event.workflow_run.conclusion == 'failure'
+      && github.event.workflow_run.head_repository.full_name == github.repository }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # workflow_run の既定のチェックアウトは、デフォルトブランチ。PRのコードは取り込まない。
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: anthropics/claude-code-action@acfe7992852970efb4fee683d63d628e3e52df67 # v1.0.286
+        env:
+          # 要検証：ActionがGH_TOKENを渡すか。念のため、明示する（一般的な例にならう）。
+          GH_TOKEN: ${{ github.token }}
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ github.token }}
+          prompt: |
+            GitHub Actionsの失敗した実行（run ID: ${{ github.event.workflow_run.id }}）の原因を調べて、PRにコメントしてください。
+          # モデルは、3構成で同じにする。要検証：モデルIDを指定できるか。
+          claude_args: >-
+            --model claude-sonnet-5-5
+            --max-turns 15
+            --allowedTools "Bash(gh *)"
+          display_report: "false"
+          show_full_output: "false"

@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "repository": "tech-organization-mame/test-actions-go",
+  "route": "merge",
+  "state": "post_target",
+  "run_id": 123456790,
+  "run_attempt": 1,
+  "head_sha": "fedcba9876543210fedcba9876543210fedcba98",
+  "event": "push",
+  "pr_number": null,
+  "mention": "octocat",
+  "same_sha_rerun": "none",
+  "fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "control_sha": "89abcdef0123456789abcdef0123456789abcdef",
+  "evidence_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+}

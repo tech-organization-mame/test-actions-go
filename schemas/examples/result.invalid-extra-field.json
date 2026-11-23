@@ -1,0 +1,8 @@
+{
+  "category": "test_failure",
+  "summary": "集計処理のテストが失敗（例）",
+  "suspected_cause": "別のパッケージの関数の戻り値の変更（例）",
+  "evidence": ["L41"],
+  "next_steps": ["期待値と実装を確認"],
+  "repository": "other-org/other-repo"
+}

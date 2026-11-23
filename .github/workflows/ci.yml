@@ -1,0 +1,37 @@
+# 調査の対象になるCI。検証では、このCIを、意図的に失敗させる。
+# 注意：未検証のたたき台。GitHubへのpush前に、内容を確認すること。
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# 既定は、読み取りのみ。
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+        with:
+          go-version-file: go.mod
+
+      # 一時的なネットワークエラーの模擬（実際のネットワーク障害ではない）。
+      # ブランチ名に scenario-network を含むPRで、attempt 1 だけ、失敗させる。
+      # 再実行（attempt 2）では、このステップを飛ばして、成功する。
+      - name: Download modules
+        if: ${{ github.run_attempt == 1 && contains(github.head_ref, 'scenario-network') }}
+        run: |
+          echo "go: downloading example.com/dep v1.0.0"
+          echo "dial tcp 203.0.113.10:443: i/o timeout" >&2
+          exit 1
+
+      - name: Run tests
+        run: go test ./...

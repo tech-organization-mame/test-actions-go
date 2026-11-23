@@ -1,0 +1,35 @@
+# 自己検証：ワークフローの検証（actionlint）と、スキーマの検証。
+# 注意：未検証のたたき台。GitHubへのpush前に、内容を確認すること。
+name: Lint
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+        with:
+          go-version-file: go.mod
+
+      - name: actionlint
+        run: |
+          go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
+          "$(go env GOPATH)/bin/actionlint"
+
+      - name: Validate schemas
+        run: |
+          python3 -m venv .venv
+          . .venv/bin/activate
+          pip install jsonschema
+          python scripts/validate_schemas.py

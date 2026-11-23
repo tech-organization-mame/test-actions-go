@@ -1,0 +1,42 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(~/.ssh/**)",
+      "Read(~/.aws/**)",
+      "Read(~/.config/gh/**)",
+      "Read(~/.git-credentials)",
+      "Edit(~/**)",
+      "Bash(gh auth token*)",
+      "Bash(gh auth refresh*)",
+      "Bash(gh repo delete*)",
+      "Bash(gh secret list*)",
+      "Bash(git push*--force*)",
+      "Bash(git push*-f *)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean*)",
+      "Bash(rm -rf*)"
+    ],
+    "ask": [
+      "Bash(git *push*)",
+      "Bash(git remote*)",
+      "Bash(git config*)",
+      "Bash(git commit*)",
+      "Bash(git tag*)",
+      "Bash(gh *)",
+      "Bash(curl*)",
+      "Bash(wget*)",
+      "Edit(./.claude/**)",
+      "Edit(./CLAUDE.md)",
+      "Edit(./.github/workflows/**)"
+    ],
+    "allow": [
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(python scripts/validate_schemas.py)",
+      "Bash(go test*)"
+    ]
+  }
+}

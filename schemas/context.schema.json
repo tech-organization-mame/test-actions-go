@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "context.schema.json",
+  "title": "準備のスクリプトが作る実行情報（triage/context.json）",
+  "description": "宛先と、事実を持つ。AIは、これを書き換えない（設計上）",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "repository", "route", "state", "run_id", "run_attempt",
+    "head_sha", "event", "pr_number", "mention", "same_sha_rerun",
+    "control_sha", "evidence_sha256"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "repository": { "type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$" },
+    "route": {
+      "description": "pr：PRの実行。merge：PRからmainへのマージ後の実行。out_of_scope：対象外・判定不能",
+      "enum": ["pr", "merge", "out_of_scope"]
+    },
+    "state": {
+      "description": "準備の判定。定型の投稿は、post_target のときだけ",
+      "enum": ["out_of_scope", "record_only", "post_target", "analysis_failed"]
+    },
+    "run_id": { "type": "integer", "minimum": 1 },
+    "run_attempt": { "type": "integer", "minimum": 1 },
+    "head_sha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "event": { "type": "string", "minLength": 1, "maxLength": 40 },
+    "pr_number": { "type": ["integer", "null"], "minimum": 1 },
+    "mention": {
+      "description": "メンション先。Actionsを実行指示した人（初回は初回実行者、再実行は再実行者）",
+      "type": "string",
+      "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$"
+    },
+    "same_sha_rerun": {
+      "description": "同じコミットの再実行の結果。「一時的」と確定してよいのは succeeded のときだけ",
+      "enum": ["none", "succeeded", "failed"]
+    },
+    "fingerprint": { "type": ["string", "null"], "pattern": "^[0-9a-f]{64}$" },
+    "control_sha": {
+      "description": "使った制御コード（スキルとスクリプト）のコミットSHA",
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "evidence_sha256": {
+      "description": "元のログ抜粋のハッシュ（準備の時点）",
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "route": { "const": "pr" } } },
+      "then": { "properties": { "pr_number": { "type": "integer" } } }
+    },
+    {
+      "description": "対象外の実行には、定型の投稿を許さない（route と state の矛盾を拒否）",
+      "if": { "properties": { "route": { "const": "out_of_scope" } } },
+      "then": { "properties": { "state": { "enum": ["out_of_scope", "record_only"] } } }
+    },
+    {
+      "description": "post_target は、route が pr か merge のときだけ",
+      "if": { "properties": { "state": { "const": "post_target" } } },
+      "then": { "properties": { "route": { "enum": ["pr", "merge"] } } }
+    }
+  ]
+}

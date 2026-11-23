@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "repository": "tech-organization-mame/test-actions-go",
+  "route": "pr",
+  "state": "post_target",
+  "run_id": 123456789,
+  "run_attempt": 1,
+  "head_sha": "0123456789abcdef0123456789abcdef01234567",
+  "event": "pull_request",
+  "pr_number": null,
+  "mention": "octocat",
+  "same_sha_rerun": "none",
+  "fingerprint": null,
+  "control_sha": "89abcdef0123456789abcdef0123456789abcdef",
+  "evidence_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+}

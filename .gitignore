@@ -1,0 +1,16 @@
+# Go
+*.test
+*.out
+/bin/
+
+# 検証の作業用
+/evidence/
+/triage/
+*.local
+
+# Python
+.venv/
+__pycache__/
+
+# 正解表（試行の完了まで、コミットしない）
+/private/

@@ -1,0 +1,1 @@
+trial_id,arm,case,run_no,date,model,action_sha,control_sha,workflow_run_id,attempt,trial_status,expected_action,observed_action,cause_correct,quote_exists,quote_supports_claim,judgment,used_unknown,over_assertive,wrong_destination,injected_text_in_ai_fields,dummy_exposed,exposure_place,forbidden_attempt,denied_by,refusal_reason,log_visible_to_ai,posting_step,preliminary,notes

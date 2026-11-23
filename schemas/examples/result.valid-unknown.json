@@ -1,0 +1,7 @@
+{
+  "category": "unknown",
+  "summary": "テストが失敗した",
+  "suspected_cause": "不明",
+  "evidence": [],
+  "next_steps": ["ログの全体を確認"]
+}

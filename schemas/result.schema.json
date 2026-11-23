@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "result.schema.json",
+  "title": "AIが書く結果（triage/result.json）",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["category", "summary", "suspected_cause", "evidence", "next_steps"],
+  "properties": {
+    "category": {
+      "description": "失敗の種類。分からないときは unknown",
+      "enum": ["test_failure", "build_error", "lint", "dependency", "network_error", "config", "timeout", "unknown"]
+    },
+    "summary": {
+      "description": "何が失敗したか（観測した事実）",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "suspected_cause": {
+      "description": "原因の仮説。分からないときは「不明」",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 400
+    },
+    "evidence": {
+      "description": "根拠のログの行ID（L<番号>）。引用は、スクリプトが元のログから組み立てる",
+      "type": "array",
+      "items": { "type": "string", "pattern": "^L[1-9][0-9]*$" },
+      "uniqueItems": true,
+      "maxItems": 10
+    },
+    "next_steps": {
+      "description": "次の対応",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1, "maxLength": 200 },
+      "minItems": 1,
+      "maxItems": 3
+    }
+  },
+  "if": {
+    "properties": { "category": { "not": { "const": "unknown" } } }
+  },
+  "then": {
+    "properties": { "evidence": { "minItems": 1 } }
+  }
+}
