@@ -16,7 +16,7 @@ func Subtotal(prices []int) int {
 	return sum
 }
 
-// Total は、税込みの合計（円未満は四捨五入）。
+// Total は、税込みの合計（円未満は、四捨五入）。
 func Total(prices []int) int {
 	return int(math.Round(float64(Subtotal(prices)) * (1 + TaxRate)))
 }
