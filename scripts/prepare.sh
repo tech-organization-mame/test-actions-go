@@ -4,6 +4,8 @@ set -euo pipefail
 EVIDENCE_DIR=${EVIDENCE_DIR:-evidence}
 RUN_ID=$(jq -r .run_id "${TRIAGE_DIR:-triage}/context.json")
 mkdir -p "$EVIDENCE_DIR"
+# 取り除くもの：CR、ジョブ名とステップ名の列、BOM、タイムスタンプ、ANSIの色コード
 gh run view "$RUN_ID" --log-failed 2>/dev/null \
-  | sed 's/$//' | cut -f3- | sed -E $'s/^ï»¿//; s/^[0-9T:.Z-]+ //; s/\[[0-9;]*[A-Za-z]//g' \
+  | sed 's/\r$//' | cut -f3- \
+  | sed -E $'s/^\xef\xbb\xbf//; s/^[0-9T:.Z-]+ //; s/\x1b\[[0-9;]*[A-Za-z]//g' \
   | head -n 200 | awk '{ printf "L%d: %s\n", NR, $0 }' > "$EVIDENCE_DIR/log.txt"
