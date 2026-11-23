@@ -34,6 +34,10 @@ jobs:
         with:
           persist-credentials: false
 
+      # スキルは、③だけに置く（①②のAIが、スキルに従わないように、通常は .claude/ の外に保管する）
+      - name: Install skill
+        run: mkdir -p .claude/skills && cp -r skills/ci-failure-triage .claude/skills/
+
       - name: Gate
         id: gate
         run: bash scripts/gate.sh
