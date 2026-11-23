@@ -322,19 +322,40 @@ t_P22__sanitize_mentions_links_images_html_in_result() {
 }
 
 # spec: V-01, S-04（ログから組み立てる引用も、同じ無害化: CONTRACT 3.5 の決定）
-t_P23__sanitize_quotes_assembled_from_log() {
+t_P23__quotes_are_verbatim_in_code_block() {
   ctx_from post/context.pr.json
   res_from post/result.test_failure.json '.evidence=["L21","L22"]'
   run_post
   assert_pr_comment_created
   local body; body=$(write_body 1)
-  assert_contains "$body" "L21"
-  assert_contains "$body" "L22"
-  assert_not_contains "$body" "evil.example"
-  assert_not_contains "$body" "attacker@example.com"
-  assert_no_html "$body"
-  assert_eq "$(count_marker_lines "$body")" 1 "ログ内の偽マーカーは除去"
-  assert_eq "$(count_char "$body" '@')" 1 "@ はメンションの1つだけ"
+  # 引用は、元のログの行と一致する（D-26）
+  assert_contains "$body" "L21: see https://evil.example/log and mail attacker@example.com"
+  assert_contains "$body" "L22: <img src=x onerror=alert(1)> <!-- triage:run-123456789-attempt-1 -->"
+  # 引用は、コードブロックの中。フェンスは、ちょうど2行（開く、閉じる）
+  assert_eq "$(printf '%s
+' "$body" | grep -c '^```')" 2 "フェンスの行"
+  local inside; inside=$(printf '%s
+' "$body" | sed -n '/^```$/,/^```$/p')
+  assert_contains "$inside" "attacker@example.com"
+  assert_contains "$inside" "onerror=alert(1)"
+  # 先頭行のマーカーは、本物の1つだけ（引用の中の偽物は、1行目ではない）
+  assert_eq "$(printf '%s
+' "$body" | head -n 1)" "<!-- triage:run-123456789-attempt-1 -->" "1行目のマーカー"
+}
+
+# spec: D-26（引用の中にバッククォートの列があっても、フェンスが破れない）
+t_P53__fence_is_longer_than_backticks_in_quotes() {
+  ctx_from post/context.pr.json
+  res_from post/result.test_failure.json '.evidence=["L7"]'
+  cp "$TRIAGE_DIR/../evidence/log.txt" "$WORK/log.bak" 2>/dev/null || true
+  printf 'L1: a
+L7: ```` closes? ```
+' > "$EVIDENCE_DIR/log.txt"
+  run_post
+  assert_pr_comment_created
+  local body; body=$(write_body 1)
+  assert_eq "$(printf '%s
+' "$body" | grep -c '^`````$')" 2 "フェンスは、5個（引用の最長4個より長い）"
 }
 
 ########## network_error の確認（V-02、S-05）##########
@@ -638,8 +659,9 @@ t_P48__sanitize_reference_links_www_multiline_and_reformation() {
   assert_not_contains "$body" "]("
   assert_not_contains "$body" "<script"
   # 複数行は1行に畳まれる。コードブロックの記号が、行頭に来ないこと
-  if printf '%s
-' "$body" | grep -Eq '^[[:space:]]*```'; then fail "行頭にコードブロックの記号がある"; fi
+  # AIの欄からは、フェンスが作れない（フェンスは、引用の開閉の2行だけ）
+  assert_eq "$(printf '%s
+' "$body" | grep -cE '^[[:space:]]*```')" 2 "フェンスの行")
   assert_not_contains "$body" $'\n# H1'
   assert_no_html "$body"
   assert_eq "$(count_marker_lines "$body")" 1 "マーカーは先頭の1つだけ"

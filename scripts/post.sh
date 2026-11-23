@@ -66,7 +66,7 @@ if [ -s "$RES" ] && single_doc "$RES"; then
   if jq -e --argjson map "$LOGMAP" ". as \$r | $VALID_RES" "$RES" > /dev/null 2>&1; then RESULT_OK=1; fi
 fi
 
-# ---- 無害化（AIの文字列と、ログからの引用の両方に適用）----
+# ---- 無害化（AIが書く欄に適用。ログからの引用は、無害化せず、コードブロックに入れる）----
 # 方針（D-18）：AIの欄とログの引用は、プレーンテキストとして扱う。リンク、画像、HTML、メンションは作らせない。
 # 角括弧を全角にすれば、リンクも画像も（参照形式も）構文として成立しない。#123やコミットSHAの自動リンクは、許容する。
 SAN='def san1:
@@ -108,7 +108,11 @@ if [ "$RESULT_OK" = 1 ]; then
       summary: (.summary | san),
       cause: (if $flag == "unverified" then "不明（ネットワークエラーと断定できる根拠が、ログにない）" else (.suspected_cause | san) end),
       next_steps: ([.next_steps[] | "  - " + (. | san)] | join("\n")),
-      evidence: ([.evidence[] | "- " + . + "：" + ($map[.] | san)] | join("\n"))
+      evidence: (
+        [.evidence[] | . + ": " + ($map[.] | gsub("[\\x00-\\x1f\\x7f]+"; " "))] as $ls
+        | ([$ls[] | [match("`+"; "g").length] | max // 0] | max // 0) as $m
+        | ([range([$m + 1, 3] | max) | "`"] | join("")) as $f
+        | $f + "\n" + ($ls | join("\n")) + "\n" + $f)
     }' "$RES") || die "変数を作れない"
   BODY=$(render pr-comment.md "$VARS") || die "本文を作れない"
   ISSUE_BODY=""
