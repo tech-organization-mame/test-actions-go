@@ -5,5 +5,5 @@ EVIDENCE_DIR=${EVIDENCE_DIR:-evidence}
 RUN_ID=$(jq -r .run_id "${TRIAGE_DIR:-triage}/context.json")
 mkdir -p "$EVIDENCE_DIR"
 gh run view "$RUN_ID" --log-failed 2>/dev/null \
-  | sed 's/\r$//' | cut -f3- | sed -E 's/^[0-9T:.Z-]+ //' \
+  | sed 's/$//' | cut -f3- | sed -E $'s/^ï»¿//; s/^[0-9T:.Z-]+ //; s/\[[0-9;]*[A-Za-z]//g' \
   | head -n 200 | awk '{ printf "L%d: %s\n", NR, $0 }' > "$EVIDENCE_DIR/log.txt"
