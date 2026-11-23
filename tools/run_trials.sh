@@ -6,6 +6,7 @@
 # 記録：results/trials.csv（機械的に取れる列。採点の列は、空）、results/raw/<trial_id>/（コメントの本文、実行の情報）
 # 採点：盲検の採点者が、正解表を見て、別に行う（このスクリプトは、正解表を読まない）
 set -u
+jq() { command jq -b "$@"; }
 cd "$(dirname "$0")/.."
 R=${TRIAGE_REPO:-tech-organization-mame/test-actions-go}
 ACTION_SHA=acfe7992852970efb4fee683d63d628e3e52df67
