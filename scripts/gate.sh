@@ -24,13 +24,17 @@ EVENT=$(ev '.workflow_run.event')
 HEAD_BRANCH=$(ev '.workflow_run.head_branch')
 HEAD_SHA=$(ev '.workflow_run.head_sha')
 HEAD_REPO=$(ev '.workflow_run.head_repository.full_name')
+PR_COUNT=$(jq -r '(.workflow_run.pull_requests // []) | length' "$GITHUB_EVENT_PATH")
 PR_FIRST=$(ev '.workflow_run.pull_requests[0].number')
 ACTOR=$(ev '.workflow_run.actor.login')
 TRIGGERING=$(ev '.workflow_run.triggering_actor.login')
+# 実行者がbotか（種類がBot、またはログインが [bot] で終わる）。初回は actor、再実行は triggering_actor
+if [ "${RUN_ATTEMPT:-1}" = "1" ]; then RUNNER_KEY=actor; else RUNNER_KEY=triggering_actor; fi
+RUNNER_IS_BOT=$(jq -r --arg k "$RUNNER_KEY" '.workflow_run[$k] | ((.type // "") == "Bot") or ((.login // "") | endswith("[bot]"))' "$GITHUB_EVENT_PATH")
 
 # メンション先：初回は actor、再実行は triggering_actor。取れない、botなど形に合わないときは null
 if [ "${RUN_ATTEMPT:-1}" = "1" ]; then MENTION=$ACTOR; else MENTION=$TRIGGERING; fi
-if ! printf '%s' "$MENTION" | grep -Eq '^[A-Za-z0-9][A-Za-z0-9-]{0,38}$'; then MENTION=""; fi
+if [ "$RUNNER_IS_BOT" = "true" ] || ! printf '%s' "$MENTION" | grep -Eq '^[A-Za-z0-9][A-Za-z0-9-]{0,38}$'; then MENTION=""; fi
 
 ROUTE=out_of_scope
 STATE=out_of_scope
@@ -42,12 +46,16 @@ if [ "$EVENT" != "pull_request" ] && [ "$EVENT" != "push" ]; then
 elif [ "$HEAD_REPO" != "$REPO" ]; then
   REASON="forkの実行"
 elif [ "$EVENT" = "pull_request" ]; then
-  if [ -z "$PR_FIRST" ]; then
-    REASON="PRを特定できない"
+  if [ "$PR_COUNT" != "1" ] || [ -z "$PR_FIRST" ]; then
+    REASON="PRを一意に特定できない（候補 ${PR_COUNT} 件）"
   elif ! PR_JSON=$(gh api "repos/$REPO/pulls/$PR_FIRST" 2>/dev/null); then
     REASON="PRを取得できない"
-  elif printf '%s' "$PR_JSON" | jq -e '(.user.type == "Bot") or ((.user.login // "") | endswith("[bot]"))' > /dev/null; then
+  elif ! printf '%s' "$PR_JSON" | jq -e --argjson n "$PR_FIRST" '(.number == $n) and ((.user.login // null) | type == "string")' > /dev/null 2>&1; then
+    REASON="PRの応答が不正（番号の不一致、または作成者がない）"
+  elif printf '%s' "$PR_JSON" | jq -e '(.user.type == "Bot") or (.user.login | endswith("[bot]"))' > /dev/null; then
     REASON="botが作ったPR"
+  elif [ "$RUNNER_IS_BOT" = "true" ]; then
+    REASON="botによる実行"
   else
     ROUTE=pr; STATE=post_target; PR_NUMBER=$PR_FIRST
   fi
@@ -57,7 +65,7 @@ else
     REASON="デフォルトブランチ以外へのpush"
   elif ! PULLS=$(gh api "repos/$REPO/commits/$HEAD_SHA/pulls" 2>/dev/null); then
     REASON="コミットに紐づくPRを取得できない"
-  elif printf '%s' "$PULLS" | jq -e 'any(.[]; .merged_at != null)' > /dev/null 2>&1; then
+  elif printf '%s' "$PULLS" | jq -e --arg b "$DEFAULT_BRANCH" 'type == "array" and any(.[]; .merged_at != null and .base.ref == $b)' > /dev/null 2>&1; then
     ROUTE=merge; STATE=post_target
   else
     REASON="直接push（マージ済みPRなし）"

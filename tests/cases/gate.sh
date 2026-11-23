@@ -7,15 +7,12 @@ PULLS8="repos/tech-organization-mame/test-actions-go/pulls/8"
 PUSH_SHA=fedcba9876543210fedcba9876543210fedcba98
 COMMIT_PULLS="repos/tech-organization-mame/test-actions-go/commits/$PUSH_SHA/pulls"
 
-# 対象外（out_of_scope または record_only）で、書き込みゼロ、スキーマに合う
+# 対象外（out_of_scope。D-14）で、書き込みゼロ、スキーマに合う
 assert_not_posted() {
   assert_eq "$GATE_RC" 0 "gate の終了コード"
   assert_ctx_valid
   assert_eq "$(ctx .route)" out_of_scope "route"
-  case "$(ctx .state)" in
-    out_of_scope|record_only) ;;
-    *) fail "state が $(ctx .state)（out_of_scope か record_only のはず）" ;;
-  esac
+  assert_eq "$(ctx .state)" out_of_scope "state（D-14：out_of_scope に統一）"
   assert_writes 0
 }
 
@@ -187,3 +184,55 @@ t_G00__context_validator_agrees_with_schema_examples() {
     if jq -e -f "$T_DIR/lib/context_valid.jq" "$f" > /dev/null; then fail "invalid のはずが合格: $f"; fi
   done
 }
+
+########## Codexレビューの反映（2026-11-23）##########
+
+# spec: R-19（PR候補が複数なら、一意に確定できない。対象外）
+t_G19__multiple_pull_requests_is_out_of_scope() {
+  event_from events/pr.json '.workflow_run.pull_requests=[{"number":7},{"number":8}]'
+  stub_api "$PULLS7" gate/pull_human.json
+  run_gate
+  assert_not_posted
+}
+
+# spec: R-19（PRの応答に作成者がない、または、番号が合わない。対象外）
+t_G20__pr_response_without_author_or_with_wrong_number_is_out_of_scope() {
+  event_from events/pr.json
+  echo '{"number":7,"state":"open"}' > "$WORK/p.json"
+  mkdir -p "$STUB_STATE/api"; cp "$WORK/p.json" "$STUB_STATE/api/${PULLS7//\//__}.json"
+  run_gate
+  assert_not_posted
+  reset_state
+  echo '{"number":99,"user":{"login":"octocat","type":"User"}}' > "$STUB_STATE/api/${PULLS7//\//__}.json" 2>/dev/null || { mkdir -p "$STUB_STATE/api"; echo '{"number":99,"user":{"login":"octocat","type":"User"}}' > "$STUB_STATE/api/${PULLS7//\//__}.json"; }
+  run_gate
+  assert_not_posted
+}
+
+# spec: R-02（人間が作ったPRでも、実行者がbotなら、対象外）
+t_G21__bot_runner_on_human_pr_is_out_of_scope() {
+  event_from events/pr.json '.workflow_run.actor.login="some-app[bot]" | .workflow_run.actor.type="Bot"'
+  stub_api "$PULLS7" gate/pull_human.json
+  run_gate
+  assert_not_posted
+}
+
+# spec: R-19（マージ済みPRのベースが、デフォルトブランチでない。対象外）
+t_G22__merged_pr_to_other_base_is_not_post_target() {
+  event_from events/push_main.json
+  stub_api "$COMMIT_PULLS" gate/commit_pulls_merged.json
+  cp "$STUB_STATE/api/${COMMIT_PULLS//\//__}.json" "$WORK/x.json"
+  jq '.[0].base.ref="release"' "$WORK/x.json" > "$STUB_STATE/api/${COMMIT_PULLS//\//__}.json"
+  run_gate
+  assert_not_posted
+}
+
+# spec: design 2.1（メンション先が Bot の種類なら、[bot] が付かなくても、メンションしない）
+t_G23__bot_type_runner_without_bot_suffix_is_not_mentioned() {
+  event_from events/push_main.json '.workflow_run.actor.login="someapp" | .workflow_run.actor.type="Bot"'
+  stub_api "$COMMIT_PULLS" gate/commit_pulls_merged.json
+  run_gate
+  assert_eq "$GATE_RC" 0 "gate の終了コード"
+  assert_ctx_valid
+  assert_eq "$(ctx .mention)" null mention
+}
+

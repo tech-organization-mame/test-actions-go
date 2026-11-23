@@ -584,3 +584,98 @@ t_P44__unknown_template_variable_fails_without_writes() {
   assert_writes 0
 }
 
+
+########## Codexレビューの反映（2026-11-23）##########
+
+# spec: R-21, D-12（Issueにも作成主体の照合。第三者のIssueは、追記先にも、抑制の根拠にもならない）
+t_P45__other_user_issue_with_matching_fingerprint_and_marker_is_ignored() {
+  ctx_from post/context.merge.json
+  res_from post/result.test_failure.json
+  seed_issue 50 open "mallory" "$(issue_body $MERGE_RUN_ID 1)"
+  run_post
+  assert_eq "$POST_RC" 0 "終了コード: $(cat "$WORK/post.out")"
+  assert_writes 1
+  assert_eq "$(write_field 1 .path)" "$ISSUES_PATH" "新しいIssueを作る"
+  assert_eq "$(issue_count)" 2 "第三者のIssueは、そのまま残る"
+}
+
+# spec: design 3（フィンガープリントは、本文の2行目。ほかの行にあるだけでは、追記先にしない）
+t_P46__fingerprint_not_on_second_line_is_not_a_target() {
+  ctx_from post/context.merge.json
+  res_from post/result.test_failure.json
+  seed_issue 50 open "$BOT" "$(printf '%s\n本文\n<!-- triage-fingerprint:%s -->' "$(marker 999 1)" "$FP_B")"
+  run_post
+  assert_eq "$POST_RC" 0 "終了コード"
+  assert_writes 1
+  assert_eq "$(write_field 1 .path)" "$ISSUES_PATH" "新しいIssueを作る"
+}
+
+# spec: R-05（古いattemptの再処理：1 → 2 → 1。別コメントを作らない）
+t_P47__reprocessing_older_attempt_after_update_writes_nothing() {
+  ctx_from post/context.pr.json '.run_attempt=1'
+  res_from post/result.test_failure.json
+  seed_comment 7 501 "$BOT" "$(marker $RUN_ID 2)"$'\n''## CI失敗の調査結果（自動）'
+  run_post
+  assert_eq "$POST_RC" 0 "終了コード"
+  assert_writes 0
+  assert_eq "$(comment_count 7)" 1 "コメントは1件のまま"
+}
+
+# spec: S-04, LLM01/LLM05（参照形式のリンク、www、複数行のMarkdown、再形成）
+t_P48__sanitize_reference_links_www_multiline_and_reformation() {
+  ctx_from post/context.pr.json
+  res_from post/result.test_failure.json '
+    .summary = "[a][ref] ![img][ref] www.evil.example/x 見出し\n# H1\n```\ncode\n```"
+    | .suspected_cause = "<scr<b>ipt>alert(1)</scr<b>ipt> と [x](h<b>ttps://evil.example/q)"'
+  run_post
+  assert_pr_comment_created
+  local body; body=$(write_body 1)
+  assert_not_contains "$body" "evil.example"
+  assert_not_contains "$body" "www."
+  assert_not_contains "$body" "[ref]"
+  assert_not_contains "$body" "<script"
+  # 複数行は1行に畳まれる。コードブロックの記号が、行頭に来ないこと
+  if printf '%s
+' "$body" | grep -Eq '^[[:space:]]*```'; then fail "行頭にコードブロックの記号がある"; fi
+  assert_not_contains "$body" $'\n# H1'
+  assert_no_html "$body"
+  assert_eq "$(count_marker_lines "$body")" 1 "マーカーは先頭の1つだけ"
+}
+
+# spec: S-04（本文中のCRなどの制御文字は、空白にする。隣の文字は、つなげない）
+t_P49__control_characters_become_spaces_not_joined() {
+  ctx_from post/context.pr.json
+  res_from post/result.test_failure.json '.summary = "ab\rcd\u0000ef"'
+  run_post
+  assert_pr_comment_created
+  local body; body=$(write_body 1)
+  assert_contains "$body" "- 要約：ab cd ef"
+}
+
+# spec: S-04（context、resultは、単一のJSON文書。複数の文書は、検証を通さない）
+t_P50__multiple_json_documents_are_rejected() {
+  ctx_from post/context.pr.json
+  cat "$T_DIR/fixtures/post/context.pr.json" >> "$TRIAGE_DIR/context.json"
+  res_from post/result.test_failure.json
+  run_post
+  assert_ne "$POST_RC" 0 "contextが複数の文書: 終了コード"
+  assert_writes 0
+  reset_state
+  ctx_from post/context.pr.json
+  { cat "$T_DIR/fixtures/post/result.test_failure.json"; cat "$T_DIR/fixtures/post/result.test_failure.json"; } > "$TRIAGE_DIR/result.json"
+  run_post
+  assert_eq "$POST_RC" 0 "resultが複数の文書: 定型の投稿"
+  assert_writes 1
+  assert_contains "$(write_body 1)" "調査失敗"
+}
+
+# spec: R-21（issue_url の、リポジトリと番号の両方を照合する）
+t_P51__issue_url_of_other_repo_is_not_done() {
+  ctx_from post/context.pr.json
+  res_from post/result.test_failure.json
+  local f="$STUB_STATE/comments/7.json"
+  mkdir -p "$STUB_STATE/comments"
+  jq -n --arg b "$(marker $RUN_ID 1)" '[{id:700,user:{login:"github-actions[bot]",type:"Bot"},body:$b,issue_url:"https://api.github.com/repos/other-org/other-repo/issues/7"}]' > "$f"
+  run_post
+  assert_pr_comment_created
+}

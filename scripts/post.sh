@@ -5,8 +5,9 @@
 set -u
 set -o pipefail
 
-# Windows の jq は、出力に CR を付けることがある。取り除く（終了コードは、jq のものを返す）
-jq() { command jq "$@" | tr -d '\r'; return "${PIPESTATUS[0]}"; }
+# Windows の jq は、出力の改行を CRLF にする。-b（--binary）で、変換しない（Linux では、何も変わらない）。
+# 本文のデータの CR は、取り除かない（無害化の前に、制御文字として処理する）
+jq() { command jq -b "$@"; }
 
 TRIAGE_DIR=${TRIAGE_DIR:-triage}
 EVIDENCE_DIR=${EVIDENCE_DIR:-evidence}
@@ -22,6 +23,9 @@ summary() { [ -n "${GITHUB_STEP_SUMMARY:-}" ] && printf '%s\n' "$*" >> "$GITHUB_
 
 # ---- 1. context の検証 ----
 [ -r "$CTX" ] || die "context.json が読めない"
+# JSON 文書が、ちょうど1つであること（複数の文書は、検証を通さない）
+single_doc() { [ "$(command jq -c . "$1" 2> /dev/null | wc -l | tr -d ' ')" = 1 ]; }
+single_doc "$CTX" || die "context.json が、単一のJSON文書でない"
 jq -e -f "$HERE/lib/context_valid.jq" "$CTX" > /dev/null 2>&1 || die "context.json が、スキーマに合わない"
 
 cx() { jq -r "$1" "$CTX"; }
@@ -39,7 +43,7 @@ MARKER="<!-- triage:run-${RUN_ID}-attempt-${ATTEMPT} -->"
 # ---- 行ID付きのログ（L<n>: 原文）を、連想配列にする ----
 LOGMAP='{}'
 if [ -r "$LOG" ]; then
-  LOGMAP=$(tr -d '\r' < "$LOG" | jq -Rn '[inputs | capture("^L(?<n>[0-9]+): (?<t>.*)$")?] | map({key: ("L" + .n), value: .t}) | from_entries')
+  LOGMAP=$(sed 's/\r$//' "$LOG" | jq -Rn '[inputs | capture("^L(?<n>[0-9]+): (?<t>.*)$")?] | map({key: ("L" + .n), value: .t}) | from_entries')
 fi
 
 # ---- 3. result の検証（スキーマ、行IDの存在）----
@@ -58,18 +62,21 @@ VALID_RES='
   and (.evidence | all(.[]; . as $id | $map | has($id)))
 '
 RESULT_OK=0
-if [ -s "$RES" ] && jq -e . "$RES" > /dev/null 2>&1; then
+if [ -s "$RES" ] && single_doc "$RES"; then
   if jq -e --argjson map "$LOGMAP" ". as \$r | $VALID_RES" "$RES" > /dev/null 2>&1; then RESULT_OK=1; fi
 fi
 
 # ---- 無害化（AIの文字列と、ログからの引用の両方に適用）----
-SAN='def san:
-  gsub("!\\[[^\\]]*\\]\\([^)]*\\)"; "")
-  | gsub("\\[(?<t>[^\\]]*)\\]\\([^)]*\\)"; .t)
+SAN='def san1:
+  gsub("[\\x00-\\x1f\\x7f]+"; " ")
+  | gsub("!\\[[^\\]]*\\](\\([^)]*\\)|\\[[^\\]]*\\])"; "")
+  | gsub("\\[(?<t>[^\\]]*)\\](\\([^)]*\\)|\\[[^\\]]*\\])"; .t)
   | gsub("<!--[\\s\\S]*?-->"; "")
   | gsub("<[A-Za-z/!][^>]*(>|$)"; "")
   | gsub("https?://[^\\s)>\\]]*"; "")
-  | gsub("@"; "");'
+  | gsub("www\\.[^\\s)>\\]]*"; ""; "i")
+  | gsub("@"; "");
+def san: . as $x | ($x | san1) | if . == $x then . else san end;'
 
 # ---- 本文を作る（テンプレートは、templates/ のファイル。D-15）----
 TEMPLATE_DIR=${TRIAGE_TEMPLATE_DIR:-$HERE/../templates}
@@ -114,9 +121,10 @@ else
 fi
 
 # ---- gh api（読み取りは paginate の出力を、1つの配列にまとめる）----
-gh_list() { gh api "$@" --paginate | jq -s 'map(if type == "array" then . else [.] end) | add // []'; }
+# 各ページが配列であること。そうでなければ、失敗にする
+gh_list() { gh api "$@" --paginate | jq -s 'if all(.[]; type == "array") then (add // []) else error("配列でないページ") end'; }
 marker_run() { # 本文の1行目が、マーカーの形か。形なら "run attempt" を出す
-  printf '%s' "$1" | tr -d '\r' | head -n 1 | sed -n 's/^<!-- triage:run-\([0-9][0-9]*\)-attempt-\([0-9][0-9]*\) -->$/\1 \2/p'
+  printf '%s' "$1" | sed 's/\r$//' | head -n 1 | sed -n 's/^<!-- triage:run-\([0-9][0-9]*\)-attempt-\([0-9][0-9]*\) -->$/\1 \2/p'
 }
 MARKER_FILTER='[.[] | . as $c | ((.body // "") | split("\n")[0] | sub("\r$"; "")
   | capture("^<!-- triage:run-(?<r>[0-9]+)-attempt-(?<a>[0-9]+) -->$")?) as $m
@@ -126,14 +134,15 @@ gh_write() { gh api "$@" > /dev/null || die "書き込みに失敗した"; }
 if [ "$ROUTE" = "pr" ]; then
   COMMENTS=$(gh_list "repos/$REPO/issues/$PR/comments") || die "コメントを読めない"
   # 処理済み候補：作成者、対象、マーカー（1行目）の3つがそろう
-  CANDS=$(printf '%s' "$COMMENTS" | jq -c --arg bot "$BOT_LOGIN" --arg pr "$PR" '
+  CANDS=$(printf '%s' "$COMMENTS" | jq -c --arg bot "$BOT_LOGIN" --arg suffix "repos/$REPO/issues/$PR" '
     [.[] | select(.user.login == $bot)
-         | select((.issue_url // "") == "" or ((.issue_url | split("/") | last) == $pr))
-         | {id, body}]')
+         | select((.issue_url // "") == "" or (.issue_url | endswith($suffix)))
+         | {id, body}]') || die "コメントの照合に失敗した"
   # 本文の1行目が、マーカーの形のものだけを取り出す（整数で比べる）
-  MATCHES=$(printf '%s' "$CANDS" | jq -c "$MARKER_FILTER")
-  SAME=$(printf '%s' "$MATCHES" | jq -r --argjson r "$RUN_ID" --argjson a "$ATTEMPT" 'any(.[]; .r == $r and .a == $a) | if . then "1" else "" end')
-  UPD_ID=$(printf '%s' "$MATCHES" | jq -r --argjson r "$RUN_ID" --argjson a "$ATTEMPT" '[.[] | select(.r == $r and .a < $a)] | max_by(.a) | .id // empty')
+  MATCHES=$(printf '%s' "$CANDS" | jq -c "$MARKER_FILTER") || die "マーカーの照合に失敗した"
+  # 同じrunの、同じattempt、または、より後のattemptがあれば、書き込まない（古いattemptの再処理で、別コメントを作らない）
+  SAME=$(printf '%s' "$MATCHES" | jq -r --argjson r "$RUN_ID" --argjson a "$ATTEMPT" 'any(.[]; .r == $r and .a >= $a) | if . then "1" else "" end') || die "照合に失敗した"
+  UPD_ID=$(printf '%s' "$MATCHES" | jq -r --argjson r "$RUN_ID" --argjson a "$ATTEMPT" '[.[] | select(.r == $r and .a < $a)] | max_by(.a) | .id // empty') || die "照合に失敗した"
   if [ -n "$SAME" ]; then
     summary "triage: 処理済み（run $RUN_ID attempt $ATTEMPT）。書き込まない"
     echo "post: 処理済み"; exit 0
@@ -150,10 +159,11 @@ fi
 # ---- route = merge：Issue ----
 [ -n "$FP" ] || die "merge の投稿には、fingerprint が必要（未定義の扱い。docs/design.md）"
 ISSUES=$(gh_list "repos/$REPO/issues?state=open") || die "Issueを読めない"
-TARGET=$(printf '%s' "$ISSUES" | jq -c --arg fp "$FPLINE" '
-  [.[] | select(has("pull_request") | not) | select(.state == "open")
-       | select((.body // "") | split("\n") | map(sub("\r$"; "")) | any(. == $fp))]
-  | sort_by(.number) | first // empty')
+# 追記先：自動投稿の主体が作ったopenなIssueで、本文の2行目が、フィンガープリントの行（テンプレートと同じ位置）
+TARGET=$(printf '%s' "$ISSUES" | jq -c --arg fp "$FPLINE" --arg bot "$BOT_LOGIN" '
+  [.[] | select(has("pull_request") | not) | select(.state == "open") | select(.user.login == $bot)
+       | select(((.body // "") | split("\n") | map(sub("\r$"; "")) | .[1]) == $fp)]
+  | sort_by(.number) | first // empty') || die "Issueの照合に失敗した"
 if [ -z "$TARGET" ]; then
   gh_write -X POST "repos/$REPO/issues" -f "title=mainのCIが失敗しています（自動）" -f "body=$ISSUE_BODY"
   summary "triage: Issueを作成（$KIND）"
@@ -165,7 +175,7 @@ if [ "${r:-}" = "$RUN_ID" ] && [ "${a:-}" = "$ATTEMPT" ]; then
   summary "triage: 処理済み（Issue #$NUM の本文）。書き込まない"; exit 0
 fi
 ICOMMENTS=$(gh_list "repos/$REPO/issues/$NUM/comments") || die "Issueのコメントを読めない"
-DONE=$(printf '%s' "$ICOMMENTS" | jq -c --arg bot "$BOT_LOGIN" '[.[] | select(.user.login == $bot)]' | jq -c "$MARKER_FILTER"   | jq -r --argjson r "$RUN_ID" --argjson a "$ATTEMPT" 'any(.[]; .r == $r and .a == $a) | if . then "1" else "" end')
+DONE=$(printf '%s' "$ICOMMENTS" | jq -c --arg bot "$BOT_LOGIN" '[.[] | select(.user.login == $bot)]' | jq -c "$MARKER_FILTER" | jq -r --argjson r "$RUN_ID" --argjson a "$ATTEMPT" 'any(.[]; .r == $r and .a == $a) | if . then "1" else "" end') || die "照合に失敗した"
 if [ -n "$DONE" ]; then
   summary "triage: 処理済み（Issue #$NUM のコメント）。書き込まない"; exit 0
 fi

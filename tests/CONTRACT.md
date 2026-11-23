@@ -55,14 +55,14 @@
 | `push`：コミットのPR取得に失敗、または、マージ済みPRなし（直接push） | out_of_scope | out_of_scope または record_only |
 | `push`：マージ済みPRあり | merge（`pr_number` は null） | post_target |
 
-- **［決定］** 対象外・記録のみの場合、`route` は必ず `out_of_scope`。テストは、`state` が `out_of_scope` か `record_only` のどちらでもよいとする（仕様が揺れているため。NOTES 1）。
+- **［決定→D-14で確定］** 対象外の場合、`route` と `state` は、ともに `out_of_scope`（`record_only` は、gate は決めない）。テストも、`out_of_scope` だけを許す。
 - **［決定］** gate が決める `state` は、`post_target`、`out_of_scope`、`record_only` のみ。`analysis_failed` は決めない。復旧済みなどによる `record_only` への変更は、この範囲外（準備の後続）
 - **［決定］** `same_sha_rerun` は `none`、`fingerprint` は `null` にする（gate は決めない）
 
 ### 2.4 出力と終了コード
 - `$TRIAGE_DIR/context.json`：**常に**書く（対象外でも）。`schemas/context.schema.json` に合う。
 - `mention`：`run_attempt == 1` なら `actor.login`、それ以外は `triggering_actor.login`（design 2.1）。
-- **［決定］** ログインが取れない場合や、`mention` の形に合わない場合（`dependabot[bot]` など）は、スキーマに合う代替値にする。代替値は実装者が決める（例：`none`）。context は、必ずスキーマに合わせる（NOTES 3）。
+- **［D-14で確定］** ログインが取れない場合、`mention` の形に合わない場合、実行者が Bot の場合は、`mention` を `null` にする（スキーマは null 可）。
 - 終了コード：判定できた場合は、対象外でも **0**。イベントファイルが読めないなど、判定の前の異常だけ、非0。
 
 ## 3. scripts/post.sh
@@ -102,12 +102,12 @@
    - 候補に、`R == run_id` かつ `A == run_attempt` があれば、**書き込みゼロ**
    - なければ、`R == run_id` かつ `A < run_attempt` の候補から、`A` が最大のものを選ぶ。`PATCH repos/<repo>/issues/comments/<id>`（`-f body=...`）で更新し、新規は作らない
    - なければ、`POST repos/<repo>/issues/<pr_number>/comments`（`-f body=...`）で作成する
-   - **［決定］** 「同じrunで、より後のattemptの候補」だけがある場合は、未定義（NOTES 9）。テストしない。
+   - **［D-16で確定］** 同じrunの、同じattempt、または、より後のattemptの候補があれば、書き込みゼロ（1 → 2 → 1 で、別コメントを作らない）。
 4. 通常の投稿と定型の投稿は、同じマーカーを使う。先に書かれた方があれば、もう一方は、書き込みゼロ（R-09）。
 
 ### 3.4 route が merge の場合
 1. `gh api "repos/<repo>/issues?state=open" --paginate` を読む（**［決定］** `state=open` を指定する）。`pull_request` を持つ要素は除く。
-2. **［決定］** 追記先は、`state == open` で、本文に `<!-- triage-fingerprint:<context.fingerprint> -->` の行を含むIssue。複数あれば、番号が最小のもの。
+2. **［D-16で確定］** 追記先は、`state == open` で、作成者が `github-actions[bot]`、本文の**2行目**が `<!-- triage-fingerprint:<context.fingerprint> -->` のIssue。複数あれば、番号が最小のもの。第三者のIssueは、追記先にも、抑制の根拠にもならない。
 3. 追記先がなければ、`POST repos/<repo>/issues`（`-f title=... -f body=...`）で作成する。
    - `title`：`mainのCIが失敗しています（自動）`（［決定］ 全体がこの文字列。少なくとも含む）
    - `body`：1行目がマーカー、2行目が `<!-- triage-fingerprint:<fingerprint> -->`、3行目以降がテンプレートの本文（見出しの行を除いてよい）
