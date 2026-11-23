@@ -10,3 +10,9 @@ gh run view "$RUN_ID" --log-failed 2>/dev/null \
   | sed -E $'s/^\xef\xbb\xbf//; s/^[0-9T:.Z-]+ //; s/\x1b\[[0-9;]*[A-Za-z]//g' \
   | sed -E 's/\^\[\[[0-9;]*[A-Za-z]//g' \
   | head -n 200 | awk '{ printf "L%d: %s\n", NR, $0 }' > "$EVIDENCE_DIR/log.txt"
+
+# PRの差分（PR経路のみ。大きすぎる場合は、先頭だけ）
+PR=$(jq -r '.pr_number // empty' "${TRIAGE_DIR:-triage}/context.json")
+if [ -n "$PR" ]; then
+  gh api -H "Accept: application/vnd.github.diff" "repos/${GITHUB_REPOSITORY}/pulls/$PR" 2>/dev/null | head -c 20000 > "$EVIDENCE_DIR/diff.patch" || true
+fi

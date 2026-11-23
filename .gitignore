@@ -16,5 +16,6 @@ __pycache__/
 /private/
 
 # 開発用の設定（調査役のチェックアウトに入れない。D-13）
-/.claude/
+/.claude/*
+!/.claude/skills/
 /CLAUDE.md

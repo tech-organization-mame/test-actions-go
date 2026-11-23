@@ -1,4 +1,4 @@
-# 構成③：入口の判定 → 準備 → AI → 投稿。T5のスパイク版：AIの代わりに、固定のJSONを書く。
+# 構成③：入口の判定 → 準備 → AI（スキル）→ 投稿。
 # 3構成は、リポジトリの変数 TRIAGE_ARM で、1つだけ有効にする（gh variable set TRIAGE_ARM --body 3）。
 name: Triage 3 (harness)
 
@@ -42,13 +42,23 @@ jobs:
         if: steps.gate.outputs.state == 'post_target'
         run: bash scripts/prepare.sh
 
-      # スパイク：AIの代わりに、固定のJSON
-      - name: Fixed result (no AI)
+      # 分析（AI）：読むのは evidence/ だけ、書くのは triage/result.json だけ。Bashは使わせない
+      - name: Analyze (AI)
         if: steps.gate.outputs.state == 'post_target'
-        run: |
-          mkdir -p triage
-          printf '%s' '{"category":"test_failure","summary":"T5の動作確認：固定のJSONによる投稿（AIは使っていない）","suspected_cause":"スクリプトの投稿経路の確認用。原因の分析ではない","evidence":["L1","L2"],"next_steps":["この投稿は、検証用。無視してよい"]}' > triage/result.json
+        continue-on-error: true
+        uses: anthropics/claude-code-action@acfe7992852970efb4fee683d63d628e3e52df67 # v1.0.286
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ github.token }}
+          prompt: ci-failure-triage スキルに従って、evidence/ の失敗を調べ、triage/result.json を書いてください。
+          claude_args: >-
+            --model claude-sonnet-5-5
+            --max-turns 10
+            --allowedTools "Skill,Read(evidence/**),Edit(triage/result.json)"
+            --disallowedTools "Bash,WebFetch,WebSearch"
+          display_report: "false"
+          show_full_output: "false"
 
       - name: Post
-        if: steps.gate.outputs.state == 'post_target'
+        if: always() && steps.gate.outputs.state == 'post_target'
         run: bash scripts/post.sh
