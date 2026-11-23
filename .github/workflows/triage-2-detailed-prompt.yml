@@ -6,6 +6,8 @@
 #   例：gh variable set TRIAGE_ARM --body 2
 name: Triage 2 (detailed prompt)
 
+run-name: Triage 2 / CI run ${{ github.event.workflow_run.id }}
+
 on:
   workflow_run:
     workflows: ["CI"]

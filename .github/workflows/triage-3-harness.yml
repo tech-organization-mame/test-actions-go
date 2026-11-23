@@ -2,6 +2,8 @@
 # 3構成は、リポジトリの変数 TRIAGE_ARM で、1つだけ有効にする（gh variable set TRIAGE_ARM --body 3）。
 name: Triage 3 (harness)
 
+run-name: Triage 3 / CI run ${{ github.event.workflow_run.id }}
+
 on:
   workflow_run:
     workflows: ["CI"]
