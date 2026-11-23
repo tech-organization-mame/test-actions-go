@@ -186,7 +186,7 @@ AIに許可するツール（案、TBD）：証拠ファイルの読み取り、
 
 ## 10. 実装の方針（PoC）
 - 準備と投稿のスクリプトは、bashと`jq`と`gh`。理由：ランナーに標準で入っている。軽く始める（`docs/decisions.md`のD-04）
-- 置き場所：`.claude/skills/ci-failure-triage/`（`SKILL.md`、`references/`、`scripts/`）
+- 置き場所：`skills/ci-failure-triage/`（`SKILL.md`）。③のワークフローが、実行時に`.claude/skills/`へコピーする（①②のAIが、スキルを見て従うのを防ぐ。T10で発生した）
 - テスト：`gh`を、呼び出しを記録するスタブに置き換えて、固定のログとJSONで確認する（`tests/`）
 - スキーマの検証：`scripts/validate_schemas.py`
 

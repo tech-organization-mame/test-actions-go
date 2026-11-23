@@ -36,12 +36,24 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: anthropics/claude-code-action@acfe7992852970efb4fee683d63d628e3e52df67 # v1.0.286
+      # 入口の判定（3構成共通。D-10）。対象外なら、AIを起動しない
+      - name: Gate
+        id: gate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          # ①②のAIに、ゲートの出力（context.json）を見せない。作業ディレクトリの外に置く
+          TRIAGE_DIR: ${{ runner.temp }}/triage
+        run: bash scripts/gate.sh
+
+      - name: Analyze and report (AI)
+        if: steps.gate.outputs.state == 'post_target'
+        uses: anthropics/claude-code-action@acfe7992852970efb4fee683d63d628e3e52df67 # v1.0.286
         env:
           # 要検証：ActionがGH_TOKENを渡すか。念のため、明示する（一般的な例にならう）。
           GH_TOKEN: ${{ github.token }}
         with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_code_oauth_token: ${{ vars.TRIAGE_BREAK_AI == '1' && 'invalid-dummy-token' || secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ github.token }}
           # 共通の業務要件を、自然な文章で、すべて伝える。
           # ブランチ名など、利用者が自由に付けられる値は、プロンプトに入れない（実行IDなどの数値と、コミットのSHAだけ）。
