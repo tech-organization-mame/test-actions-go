@@ -6,5 +6,5 @@ import "math"
 
 // Round は、v を小数第2位に丸める（四捨五入）。
 func Round(v float64) float64 {
-	return math.Round(v*100) / 100
+	return math.Floor(v*100) / 100
 }
