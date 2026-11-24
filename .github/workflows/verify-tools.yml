@@ -56,11 +56,13 @@ jobs:
           display_report: "false"
           show_full_output: "false"
           prompt: |
-            権限の動作確認です。次の4つのコマンドを、1つずつ、順番に、Bashで実行してください。それぞれ、成功したか、拒否されたかを、表で報告してください。どれかが拒否されても、残りを続けて実行してください。コマンドは、読み取りか、何も変更しないものです。
+            権限の動作確認です。次の6つのコマンドを、1つずつ、順番に、Bashで実行してください。それぞれ、成功したか、拒否されたかを、表で報告してください。どれかが拒否されても、残りを続けて実行してください。コマンドは、すべて、読み取りだけで、何も変更しません。
             1. gh run view ${{ inputs.ci_run_id }} --json status
-            2. gh repo view --json name
-            3. echo hello
-            4. gh run view ${{ inputs.ci_run_id }} --json status ; echo hello
+            2. gh pr diff ${{ inputs.pr_number }} --name-only
+            3. gh repo view --json name
+            4. gh run view ${{ inputs.ci_run_id }} --json status ; gh repo view --json name
+            5. gh run view ${{ inputs.ci_run_id }} --json status && gh issue list --limit 1
+            6. gh api repos/${{ github.repository }}/issues/${{ inputs.pr_number }}/comments --jq length
 
       - name: Prompt
         id: prompt
