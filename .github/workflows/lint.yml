@@ -37,3 +37,10 @@ jobs:
 
       - name: Script tests (gate.sh, post.sh)
         run: bash tests/run.sh
+
+      - name: Article version core tests (article/)
+        run: |
+          python3 -m venv .venv-article
+          . .venv-article/bin/activate
+          pip install check-jsonschema
+          ARTICLE=1 SCRIPTS_DIR="$PWD/article" CORE=1 bash tests/run.sh
