@@ -13,8 +13,12 @@ on:
       pr_number:
         description: そのPRの番号
         required: true
+      extra_args:
+        description: claude_args に足す引数（例：--permission-mode default）
+        required: false
+        default: ""
 
-run-name: Verify ${{ inputs.mode }} / CI run ${{ inputs.ci_run_id }}
+run-name: Verify ${{ inputs.mode }} ${{ inputs.extra_args }} / CI run ${{ inputs.ci_run_id }}
 
 permissions:
   actions: read
@@ -48,7 +52,7 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ github.token }}
-          claude_args: ${{ env.CLAUDE_ARGS }}
+          claude_args: ${{ env.CLAUDE_ARGS }} ${{ inputs.extra_args }}
           display_report: "false"
           show_full_output: "false"
           prompt: |
@@ -65,7 +69,7 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ github.token }}
-          claude_args: ${{ env.CLAUDE_ARGS }}
+          claude_args: ${{ env.CLAUDE_ARGS }} ${{ inputs.extra_args }}
           display_report: "false"
           show_full_output: "false"
           prompt: |
@@ -97,7 +101,7 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ github.token }}
-          claude_args: ${{ env.CLAUDE_ARGS }}
+          claude_args: ${{ env.CLAUDE_ARGS }} ${{ inputs.extra_args }}
           display_report: "false"
           show_full_output: "false"
           prompt: |
@@ -111,6 +115,7 @@ jobs:
           f='${{ steps.probe.outputs.execution_file || steps.prompt.outputs.execution_file || steps.skill.outputs.execution_file }}'
           echo "execution_file=$f"
           [ -r "$f" ] || { echo "SUMMARY: no execution file"; exit 0; }
+          jq -c '[.[] | select(.type=="system" and .subtype=="init")] | .[0] | {permissionMode, model, tools: (.tools | length), has_bash: ((.tools // []) | index("Bash") != null), skills: (.skills // null), slash: ((.slash_commands // []) | length)}' "$f" | sed 's/^/SUMMARY init: /'
           jq -c '[.[] | select(.type=="assistant") | .message.content[]? | select(.type=="tool_use") | {tool: .name, input: (.input | tostring | .[0:160])}]' "$f" | sed 's/^/SUMMARY tools: /'
           jq -c '[.[] | select(.type=="user") | .message.content[]? | select(.type=="tool_result") | {error: (.is_error // false), out: ((.content | tostring) | .[0:120])}]' "$f" | sed 's/^/SUMMARY results: /'
           jq -c '[.[] | select(.type=="result")] | .[0] | {denials: (.permission_denials | length), denied: [.permission_denials[]? | {tool: .tool_name, input: (.tool_input | tostring | .[0:120])}], turns: .num_turns, cost: .total_cost_usd}' "$f" | sed 's/^/SUMMARY result: /'
