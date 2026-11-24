@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # 全ケースを実行する。使い方: bash tests/run.sh [名前の部分一致]
+# 記事版：ARTICLE=1 SCRIPTS_DIR=article CORE=1 bash tests/run.sh
 # 失敗が1件でもあれば、終了コード1。
 set -u
 T_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
@@ -17,6 +18,8 @@ failed=()
 for f in "$T_DIR"/cases/*.sh; do
   for name in $(grep -oE '^t_[A-Za-z0-9_]+' "$f"); do
     if [ -n "$filter" ] && [[ $name != *"$filter"* ]]; then continue; fi
+    # CORE=1：中核のテスト（tests/core.txt）だけ。記事版のコードの確認に使う
+    if [ -n "${CORE:-}" ] && ! grep -qx "${name%%__*}" "$T_DIR/core.txt"; then continue; fi
     work=$(mktemp -d)
     out=$(
       (

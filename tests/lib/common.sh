@@ -103,11 +103,14 @@ $nm"; fi
 }
 
 # ---- スクリプトの実行 ----
-run_gate() { bash "$REPO_ROOT/scripts/gate.sh" > "$WORK/gate.out" 2>&1; GATE_RC=$?; }
-run_post() { bash "$REPO_ROOT/scripts/post.sh" > "$WORK/post.out" 2>&1; POST_RC=$?; }
+SCRIPTS_DIR=${SCRIPTS_DIR:-$REPO_ROOT/scripts}  # 記事版を試すときは、SCRIPTS_DIR=article
+run_gate() { bash "$SCRIPTS_DIR/gate.sh" > "$WORK/gate.out" 2>&1; GATE_RC=$?; }
+run_post() { bash "$SCRIPTS_DIR/post.sh" > "$WORK/post.out" 2>&1; POST_RC=$?; }
 ctx() { jq -r "$1" "$TRIAGE_DIR/context.json"; }
 assert_ctx_valid() {
   [ -f "$TRIAGE_DIR/context.json" ] || fail "context.json が書かれていない: $(cat "$WORK/gate.out" 2>/dev/null)"
+  # 記事版は、検証版の全項目（制御SHA、証拠のハッシュなど）を持たない。存在だけを見る
+  [ -n "${ARTICLE:-}" ] && return 0
   jq -e -f "$T_DIR/lib/context_valid.jq" "$TRIAGE_DIR/context.json" > /dev/null \
     || fail "context.json が context.schema.json に合わない: $(cat "$TRIAGE_DIR/context.json")"
 }
